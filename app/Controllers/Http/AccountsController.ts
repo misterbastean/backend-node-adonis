@@ -3,13 +3,13 @@ import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 export default class AccountsController {
   public async index({ params }: HttpContextContract) {
     return {
-      message: `List all accounts for user with ID of ${params.userId}`,
+      message: `List all accounts for user with ID of ${params.user_id}`,
     };
   }
 
   public async store({ params, request }: HttpContextContract) {
     return {
-      message: `Create new account for user with ID of ${params.userId}`,
+      message: `Create new account for user with ID of ${params.user_id}`,
       body: request.body(),
     };
   }

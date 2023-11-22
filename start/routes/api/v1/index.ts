@@ -1,16 +1,10 @@
 import Route from "@ioc:Adonis/Core/Route";
-import userRoutes from "./user";
-import accountRoutes from "./account";
-import transactionRoutes from "./transaction";
 
 Route.group(() => {
-  Route.group(() => {
-    userRoutes();
-    accountRoutes();
-    transactionRoutes();
-  })
-    .prefix("/v1")
-    .as("v1");
+  Route.resource("user", "UsersController").apiOnly();
+  Route.post("/auth", "UsersController.auth").prefix("user").as("user.auth");
+  Route.resource("user.acct", "AccountsController").apiOnly();
+  Route.resource("user.acct.txn", "TransactionsController").apiOnly();
 })
-  .prefix("/api")
-  .as("api");
+  .as("api.v1")
+  .prefix("/api/v1");
