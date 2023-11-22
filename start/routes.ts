@@ -20,3 +20,4 @@
 
 import "./routes/api/v1/index";
 import "./routes/api/v1/account";
+import "./routes/api/v1/transaction";
