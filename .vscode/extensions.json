@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "alexcvzz.vscode-sqlite",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ]
+}
