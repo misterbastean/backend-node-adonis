@@ -19,3 +19,4 @@
 */
 
 import "./routes/api/v1/index";
+import "./routes/api/v1/account";
