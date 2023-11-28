@@ -1,15 +1,42 @@
+import { v4 as uuidv4 } from "uuid";
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import User from "../../Models/User";
 
 export default class UsersController {
   public async index({}: HttpContextContract) {
     return { message: "List all users" };
   }
 
-  public async store({ request }: HttpContextContract) {
-    return {
-      message: "Create new user",
-      body: request.body(),
-    };
+  public async store({ request, response }: HttpContextContract) {
+    try {
+      const { userName, email, firstName, lastName, password } =
+        request.body().data;
+      const id = uuidv4();
+
+      const user = await User.create({
+        id,
+        userName,
+        email,
+        firstName,
+        lastName,
+        password,
+      });
+
+      return {
+        code: 0,
+        data: {
+          id,
+        },
+        user,
+      };
+    } catch (err) {
+      response.status(500);
+      console.error("error:", err);
+      return {
+        code: err.errno,
+        error: err.message,
+      };
+    }
   }
 
   public async show({ params }: HttpContextContract) {
