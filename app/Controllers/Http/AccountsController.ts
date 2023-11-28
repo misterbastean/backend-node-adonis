@@ -2,10 +2,19 @@ import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import Account from "../../Models/Account";
 
 export default class AccountsController {
-  public async index({ response }: HttpContextContract) {
+  public async index({ response, params }: HttpContextContract) {
     try {
-      const users = await Account.all();
-      return { code: 0, data: users };
+      const accounts = await Account.query().where("userId", params.user_id);
+
+      if (accounts && accounts.length > 0) {
+        return { code: 0, data: accounts };
+      } else {
+        response.status(404);
+        return {
+          code: 0,
+          data: null,
+        };
+      }
     } catch (err) {
       response.status(500);
       console.error(err);
