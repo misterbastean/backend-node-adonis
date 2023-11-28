@@ -26,7 +26,7 @@ export default class User extends BaseModel {
   @column()
   public password: string;
 
-  // TODO: Fix DateTime formatting to match DB
+  // TODO: Fix DateTime formatting to ISO 8601
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
