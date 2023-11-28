@@ -13,6 +13,8 @@ export default class UsersController {
         request.body().data;
       const id = uuidv4();
 
+      // TODO: Hash/salt password
+
       const user = new User();
       user.id = id;
       user.userName = userName;
