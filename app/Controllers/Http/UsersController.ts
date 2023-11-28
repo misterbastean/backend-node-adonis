@@ -18,12 +18,11 @@ export default class UsersController {
 
       // TODO: Hash/salt password
 
-      const user = await User.create({ id, ...data });
-
+      const user = await User.create({ id, ...data }, {});
       return {
         code: 0,
         data: {
-          id,
+          id: user.id,
         },
       };
     } catch (err) {

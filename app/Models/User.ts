@@ -6,6 +6,7 @@ export default class User extends BaseModel {
   static get table() {
     return "user"; // Specify the actual table name in the database
   }
+  public static selfAssignPrimaryKey = true; // We will be assigning primary keys, not autoincrementing
 
   @column({ isPrimary: true })
   public id: string;
