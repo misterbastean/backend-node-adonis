@@ -1,10 +1,19 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import Account from "../../Models/Account";
 
 export default class AccountsController {
-  public async index({ params }: HttpContextContract) {
-    return {
-      message: `List all accounts for user with ID of ${params.user_id}`,
-    };
+  public async index({ response }: HttpContextContract) {
+    try {
+      const users = await Account.all();
+      return { code: 0, data: users };
+    } catch (err) {
+      response.status(500);
+      console.error(err);
+      return {
+        code: err.errno || 0,
+        error: err.message,
+      };
+    }
   }
 
   public async store({ params, request }: HttpContextContract) {
