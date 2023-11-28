@@ -9,28 +9,22 @@ export default class UsersController {
 
   public async store({ request, response }: HttpContextContract) {
     try {
-      const { userName, email, firstName, lastName, password } =
-        request.body().data;
+      const data = request.body().data;
+      console.log(data);
+
+      // TODO: Validate incoming data
+
       const id = uuidv4();
 
       // TODO: Hash/salt password
 
-      const user = new User();
-      user.id = id;
-      user.userName = userName;
-      user.email = email;
-      user.firstName = firstName;
-      user.lastName = lastName;
-      user.password = password;
-
-      await user.save();
+      const user = await User.create({ id, ...data });
 
       return {
         code: 0,
         data: {
           id,
         },
-        user,
       };
     } catch (err) {
       response.status(500);
