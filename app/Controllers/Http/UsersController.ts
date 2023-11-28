@@ -13,14 +13,15 @@ export default class UsersController {
         request.body().data;
       const id = uuidv4();
 
-      const user = await User.create({
-        id,
-        userName,
-        email,
-        firstName,
-        lastName,
-        password,
-      });
+      const user = new User();
+      user.id = id;
+      user.userName = userName;
+      user.email = email;
+      user.firstName = firstName;
+      user.lastName = lastName;
+      user.password = password;
+
+      await user.save();
 
       return {
         code: 0,
