@@ -11,6 +11,11 @@ import Account from "./Account";
 import Category from "./Category";
 
 export default class Transaction extends BaseModel {
+  static get table() {
+    return "transaction"; // Specify the actual table name in the database
+  }
+  public static selfAssignPrimaryKey = true; // We will be assigning primary keys, not autoincrementing
+
   @column({ isPrimary: true })
   public id: string;
 
