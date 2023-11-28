@@ -3,8 +3,18 @@ import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import User from "../../Models/User";
 
 export default class UsersController {
-  public async index({}: HttpContextContract) {
-    return { message: "List all users" };
+  public async index({ response }: HttpContextContract) {
+    try {
+      const users = await User.all();
+      return { code: 0, data: users };
+    } catch (err) {
+      response.status(500);
+      console.error("error:", err);
+      return {
+        code: err.errno || 0,
+        error: err.message,
+      };
+    }
   }
 
   public async store({ request, response }: HttpContextContract) {
@@ -29,7 +39,7 @@ export default class UsersController {
       response.status(500);
       console.error("error:", err);
       return {
-        code: err.errno,
+        code: err.errno || 0,
         error: err.message,
       };
     }
