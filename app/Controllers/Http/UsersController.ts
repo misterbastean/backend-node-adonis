@@ -21,7 +21,6 @@ export default class UsersController {
   public async store({ request, response }: HttpContextContract) {
     try {
       const data = request.body().data;
-      console.log(data);
 
       // TODO: Validate incoming data
 
