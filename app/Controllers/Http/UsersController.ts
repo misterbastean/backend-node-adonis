@@ -45,7 +45,29 @@ export default class UsersController {
     }
   }
 
-  public async show({ params }: HttpContextContract) {
+  public async show({ params, response }: HttpContextContract) {
+    try {
+      const user = await User.find(params.id);
+      if (user) {
+        return {
+          code: 0,
+          data: user,
+        };
+      } else {
+        response.status(404);
+        return {
+          code: 0,
+          data: null,
+        };
+      }
+    } catch (err) {
+      response.status(500);
+      console.error("error:", err);
+      return {
+        code: err.errno || 0,
+        error: err.message,
+      };
+    }
     return {
       message: "Show single user",
       params,
