@@ -1,4 +1,5 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import { DateTime } from "luxon";
 import { v4 as uuidv4 } from "uuid";
 import Account from "../../Models/Account";
 
@@ -87,9 +88,10 @@ export default class AccountsController {
       const { user_id: userId, id: accountId } = params;
       const data = request.body().data;
 
-      let account = await Account.query()
+      const account = await Account.query()
         .where("id", accountId)
         .where("userId", userId)
+        .whereNull("deletedAt")
         .first();
 
       if (!account) {
@@ -122,10 +124,41 @@ export default class AccountsController {
     }
   }
 
-  public async destroy({ params }: HttpContextContract) {
-    return {
-      message: "Destroy single account",
-      params,
-    };
+  public async destroy({ params, response }: HttpContextContract) {
+    try {
+      const { user_id: userId, id: accountId } = params;
+      let account = await Account.query()
+        .where("id", accountId)
+        .where("userId", userId)
+        .whereNull("deletedAt")
+        .first();
+
+      if (!account) {
+        response.status(404);
+        return {
+          code: 404,
+          data: {
+            id: null,
+          },
+        };
+      }
+
+      account.deletedAt = DateTime.now().toISO();
+      await account.save();
+
+      return {
+        code: 200,
+        data: {
+          id: account.id,
+        },
+      };
+    } catch (err) {
+      response.status(500);
+      console.error(err);
+      return {
+        code: err.errno || 0,
+        error: err.message,
+      };
+    }
   }
 }
