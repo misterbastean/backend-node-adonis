@@ -91,7 +91,6 @@ export default class AccountsController {
       const account = await Account.query()
         .where("id", accountId)
         .where("userId", userId)
-        .whereNull("deletedAt")
         .first();
 
       if (!account) {
