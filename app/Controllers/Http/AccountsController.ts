@@ -5,7 +5,9 @@ import Account from "../../Models/Account";
 export default class AccountsController {
   public async index({ response, params }: HttpContextContract) {
     try {
-      const accounts = await Account.query().where("userId", params.user_id);
+      const accounts = await Account.query()
+        .where("userId", params.user_id)
+        .whereNull("deletedAt");
 
       if (accounts && accounts.length > 0) {
         return { code: 0, data: accounts };
@@ -54,6 +56,7 @@ export default class AccountsController {
       const account = await Account.query()
         .where("id", accountId)
         .where("userId", userId)
+        .whereNull("deletedAt")
         .first();
       if (!account) {
         response.status(404);
