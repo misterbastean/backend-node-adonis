@@ -47,11 +47,37 @@ export default class AccountsController {
     }
   }
 
-  public async show({ params }: HttpContextContract) {
-    return {
-      message: "Show single account",
-      params,
-    };
+  public async show({ params, response }: HttpContextContract) {
+    try {
+      console.log("params:", params);
+      const { user_id: userId, id: accountId } = params;
+
+      const account = await Account.query()
+        .where("id", accountId)
+        .where("userId", userId)
+        .first();
+      if (!account) {
+        response.status(404);
+        return {
+          code: 404,
+          data: {
+            id: null,
+          },
+        };
+      }
+
+      return {
+        code: 0,
+        data: account,
+      };
+    } catch (err) {
+      response.status(500);
+      console.error(err);
+      return {
+        code: err.errno || 0,
+        error: err.message,
+      };
+    }
   }
 
   public async update({ params, request }: HttpContextContract) {
