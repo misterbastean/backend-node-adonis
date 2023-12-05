@@ -26,7 +26,7 @@ export default class AccountsController {
     }
   }
 
-  public async store({ params, request, response }: HttpContextContract) {
+  public async store({ request, response }: HttpContextContract) {
     try {
       const data = request.body().data;
       const id = uuidv4();
