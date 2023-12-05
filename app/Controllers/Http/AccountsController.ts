@@ -49,7 +49,6 @@ export default class AccountsController {
 
   public async show({ params, response }: HttpContextContract) {
     try {
-      console.log("params:", params);
       const { user_id: userId, id: accountId } = params;
 
       const account = await Account.query()
@@ -80,12 +79,44 @@ export default class AccountsController {
     }
   }
 
-  public async update({ params, request }: HttpContextContract) {
-    return {
-      message: "Update single account",
-      params,
-      body: request.body(),
-    };
+  public async update({ params, request, response }: HttpContextContract) {
+    try {
+      const { user_id: userId, id: accountId } = params;
+      const data = request.body().data;
+
+      let account = await Account.query()
+        .where("id", accountId)
+        .where("userId", userId)
+        .first();
+
+      if (!account) {
+        response.status(404);
+        return {
+          code: 404,
+          data: {
+            id: null,
+          },
+        };
+      }
+
+      account.merge(data);
+
+      await account.save();
+
+      return {
+        code: 200,
+        data: {
+          id: account.id,
+        },
+      };
+    } catch (err) {
+      response.status(500);
+      console.error(err);
+      return {
+        code: err.errno || 500,
+        error: err.message,
+      };
+    }
   }
 
   public async destroy({ params }: HttpContextContract) {
