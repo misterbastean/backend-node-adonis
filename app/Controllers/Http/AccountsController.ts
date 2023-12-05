@@ -1,4 +1,5 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import { v4 as uuidv4 } from "uuid";
 import Account from "../../Models/Account";
 
 export default class AccountsController {
@@ -25,11 +26,25 @@ export default class AccountsController {
     }
   }
 
-  public async store({ params, request }: HttpContextContract) {
-    return {
-      message: `Create new account for user with ID of ${params.user_id}`,
-      body: request.body(),
-    };
+  public async store({ params, request, response }: HttpContextContract) {
+    try {
+      const data = request.body().data;
+      const id = uuidv4();
+      const account = await Account.create({ id, ...data });
+      return {
+        code: 0,
+        data: {
+          id: account.id,
+        },
+      };
+    } catch (err) {
+      response.status(500);
+      console.error(err);
+      return {
+        code: err.errno || 0,
+        error: err.message,
+      };
+    }
   }
 
   public async show({ params }: HttpContextContract) {
