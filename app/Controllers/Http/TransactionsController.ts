@@ -52,11 +52,42 @@ export default class TransactionsController {
     }
   }
 
-  public async show({ params }: HttpContextContract) {
-    return {
-      message: "Show single transaction",
-      params,
-    };
+  public async show({ params, response }: HttpContextContract) {
+    try {
+      const {
+        user_id: userId,
+        account_id: accountId,
+        id: transactionId,
+      } = params;
+
+      const transaction = await Transaction.query()
+        .where("id", transactionId)
+        .where("userId", userId)
+        .where("accountId", accountId)
+        .whereNull("deletedAt")
+        .first();
+      if (!transaction) {
+        response.status(404);
+        return {
+          code: 404,
+          data: {
+            id: null,
+          },
+        };
+      }
+
+      return {
+        code: 0,
+        data: transaction,
+      };
+    } catch (err) {
+      response.status(500);
+      console.error(err);
+      return {
+        code: err.errno || 0,
+        error: err.message,
+      };
+    }
   }
 
   public async update({ params, request }: HttpContextContract) {
