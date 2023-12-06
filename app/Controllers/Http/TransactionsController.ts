@@ -90,12 +90,49 @@ export default class TransactionsController {
     }
   }
 
-  public async update({ params, request }: HttpContextContract) {
-    return {
-      message: "Update single transaction",
-      params,
-      body: request.body(),
-    };
+  public async update({ params, request, response }: HttpContextContract) {
+    try {
+      const {
+        user_id: userId,
+        account_id: accountId,
+        id: transactionId,
+      } = params;
+      const data = request.body().data;
+
+      const transaction = await Transaction.query()
+        .where("id", transactionId)
+        .where("accountId", accountId)
+        .where("userId", userId)
+        .first();
+
+      if (!transaction) {
+        response.status(404);
+        return {
+          code: 404,
+          data: {
+            id: null,
+          },
+        };
+      }
+
+      transaction.merge(data);
+
+      await transaction.save();
+
+      return {
+        code: 200,
+        data: {
+          id: transaction.id,
+        },
+      };
+    } catch (err) {
+      response.status(500);
+      console.error(err);
+      return {
+        code: err.errno || 500,
+        error: err.message,
+      };
+    }
   }
 
   public async destroy({ params }: HttpContextContract) {
