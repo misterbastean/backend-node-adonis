@@ -22,7 +22,7 @@ export default class AccountsController {
     } catch (err) {
       response.status(500);
       return {
-        code: err.errno || 0,
+        code: 500,
         error: err.message,
       };
     }
@@ -43,7 +43,7 @@ export default class AccountsController {
     } catch (err) {
       response.status(500);
       return {
-        code: err.errno || 0,
+        code: 500,
         error: err.message,
       };
     }
@@ -75,7 +75,7 @@ export default class AccountsController {
     } catch (err) {
       response.status(500);
       return {
-        code: err.errno || 0,
+        code: 500,
         error: err.message,
       };
     }
@@ -114,7 +114,7 @@ export default class AccountsController {
     } catch (err) {
       response.status(500);
       return {
-        code: err.errno || 500,
+        code: 500,
         error: err.message,
       };
     }
@@ -151,7 +151,7 @@ export default class AccountsController {
     } catch (err) {
       response.status(500);
       return {
-        code: err.errno || 0,
+        code: 500,
         error: err.message,
       };
     }
