@@ -1,6 +1,6 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import { DateTime } from "luxon";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuid } from "uuid";
 import Account from "@Models/Account";
 
 export default class AccountsController {
@@ -31,7 +31,7 @@ export default class AccountsController {
   public async store({ request, response }: HttpContextContract) {
     try {
       const data = request.body().data;
-      const id = uuidv4();
+      const id = uuid();
       const account = await Account.create({ id, ...data });
       response.status(201);
       return {

@@ -1,7 +1,7 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import { DateTime } from "luxon";
 import Transaction from "@Models/Transaction";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuid } from "uuid";
 
 export default class TransactionsController {
   public async index({ response, params }: HttpContextContract) {
@@ -33,7 +33,7 @@ export default class TransactionsController {
   public async store({ request, response }: HttpContextContract) {
     try {
       const data = request.body().data;
-      const id = uuidv4();
+      const id = uuid();
       const transaction = await Transaction.create({ id, ...data });
       response.status(201);
       return {

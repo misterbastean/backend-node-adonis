@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuid } from "uuid";
 import { DateTime } from "luxon";
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import User from "@Models/User";
@@ -23,7 +23,7 @@ export default class UsersController {
 
       // TODO: Validate incoming data
 
-      const id = uuidv4();
+      const id = uuid();
 
       // TODO: Hash/salt password
 
