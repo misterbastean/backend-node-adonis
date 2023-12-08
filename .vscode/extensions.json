@@ -3,6 +3,8 @@
     "alexcvzz.vscode-sqlite",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
-    "jripouteau.adonis-vscode-extension"
+    "jripouteau.adonis-vscode-extension",
+    "mikestead.dotenv",
+    "EditorConfig.EditorConfig",
   ]
 }
