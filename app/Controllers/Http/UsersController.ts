@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { DateTime } from "luxon";
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
-import User from "../../Models/User";
+import User from "@Models/User";
 
 export default class UsersController {
   public async index({ response }: HttpContextContract) {

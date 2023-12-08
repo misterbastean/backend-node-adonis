@@ -1,13 +1,12 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import { DateTime } from "luxon";
-import Transaction from "../../Models/Transaction";
+import Transaction from "@Models/Transaction";
 import { v4 as uuidv4 } from "uuid";
 
 export default class TransactionsController {
   public async index({ response, params }: HttpContextContract) {
     try {
       const { user_id: userId, account_id: accountId } = params;
-      console.log(params);
       const transactions = await Transaction.query()
         .where("userId", userId)
         .where("accountId", accountId)

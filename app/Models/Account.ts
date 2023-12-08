@@ -7,8 +7,8 @@ import {
   column,
   hasMany,
 } from "@ioc:Adonis/Lucid/Orm";
-import User from "./User";
-import Transaction from "./Transaction";
+import User from "@Models/User";
+import Transaction from "@Models/Transaction";
 
 export default class Account extends BaseModel {
   static get table() {
