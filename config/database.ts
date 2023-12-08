@@ -39,11 +39,6 @@ const databaseConfig: DatabaseConfig = {
       connection: {
         filename: Application.makePath("data/data.db"),
       },
-      pool: {
-        afterCreate: (conn, cb) => {
-          conn.run("PRAGMA foreign_keys=true", cb);
-        },
-      },
       migrations: {
         naturalSort: true,
       },
