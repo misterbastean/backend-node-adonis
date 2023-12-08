@@ -10,7 +10,6 @@ export default class UsersController {
       return { code: 0, data: users };
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
@@ -37,7 +36,6 @@ export default class UsersController {
       };
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
@@ -62,7 +60,6 @@ export default class UsersController {
       }
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
@@ -96,7 +93,6 @@ export default class UsersController {
       }
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
@@ -125,7 +121,6 @@ export default class UsersController {
       }
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,

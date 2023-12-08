@@ -23,7 +23,6 @@ export default class TransactionsController {
       }
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
@@ -44,7 +43,6 @@ export default class TransactionsController {
       };
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
@@ -82,7 +80,6 @@ export default class TransactionsController {
       };
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
@@ -127,7 +124,6 @@ export default class TransactionsController {
       };
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 500,
         error: err.message,
@@ -170,7 +166,6 @@ export default class TransactionsController {
       };
     } catch (err) {
       response.status(500);
-      console.error(err);
       return {
         code: err.errno || 0,
         error: err.message,
