@@ -1,37 +1,132 @@
+import { v4 as uuid } from "uuid";
+import { DateTime } from "luxon";
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import User from "@Models/User";
 
 export default class UsersController {
-  public async index({}: HttpContextContract) {
-    return { message: "List all users" };
+  public async index({ response }: HttpContextContract) {
+    try {
+      const users = await User.all();
+      return { code: 200, data: users };
+    } catch (err) {
+      response.status(500);
+      return {
+        code: 500,
+        error: err.message,
+      };
+    }
   }
 
-  public async store({ request }: HttpContextContract) {
-    return {
-      message: "Create new user",
-      body: request.body(),
-    };
+  public async store({ request, response }: HttpContextContract) {
+    try {
+      const data = request.body().data;
+
+      // TODO: Validate incoming data
+
+      const id = uuid();
+
+      // TODO: Hash/salt password
+
+      const user = await User.create({ id, ...data }, {});
+      response.status(201);
+      return {
+        code: 201,
+        data: {
+          id: user.id,
+        },
+      };
+    } catch (err) {
+      response.status(500);
+      return {
+        code: 500,
+        error: err.message,
+      };
+    }
   }
 
-  public async show({ params }: HttpContextContract) {
-    return {
-      message: "Show single user",
-      params,
-    };
+  public async show({ params, response }: HttpContextContract) {
+    try {
+      const user = await User.find(params.id);
+      if (user) {
+        return {
+          code: 200,
+          data: user,
+        };
+      } else {
+        response.status(404);
+        return {
+          code: 404,
+          data: null,
+        };
+      }
+    } catch (err) {
+      response.status(500);
+      return {
+        code: 500,
+        error: err.message,
+      };
+    }
   }
 
-  public async update({ params, request }: HttpContextContract) {
-    return {
-      message: "Update single user",
-      params,
-      body: request.body(),
-    };
+  public async update({ params, request, response }: HttpContextContract) {
+    try {
+      const user = await User.find(params.id);
+      if (user) {
+        const data = request.body().data;
+
+        // TODO: Validate data
+
+        user.merge(data);
+        await user.save();
+
+        return {
+          code: 200,
+          data: {
+            id: user.id,
+          },
+        };
+      } else {
+        response.status(404);
+        return {
+          code: 404,
+          data: null,
+        };
+      }
+    } catch (err) {
+      response.status(500);
+      return {
+        code: 500,
+        error: err.message,
+      };
+    }
   }
 
-  public async destroy({ params }: HttpContextContract) {
-    return {
-      message: "Destroy single user",
-      params,
-    };
+  public async destroy({ params, response }: HttpContextContract) {
+    try {
+      const user = await User.find(params.id);
+      if (user) {
+        user.deletedAt = DateTime.now().toISO();
+        await user.save();
+        return {
+          code: 200,
+          data: {
+            id: user.id,
+          },
+        };
+      } else {
+        response.status(404);
+        return {
+          code: 404,
+          data: null,
+        };
+      }
+    } catch (err) {
+      response.status(500);
+      return {
+        code: 500,
+        error: err.message,
+      };
+    }
   }
 
   public async auth({ request }: HttpContextContract) {
