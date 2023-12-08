@@ -7,7 +7,7 @@ export default class UsersController {
   public async index({ response }: HttpContextContract) {
     try {
       const users = await User.all();
-      return { code: 0, data: users };
+      return { code: 200, data: users };
     } catch (err) {
       response.status(500);
       return {
@@ -28,8 +28,9 @@ export default class UsersController {
       // TODO: Hash/salt password
 
       const user = await User.create({ id, ...data }, {});
+      response.status(201);
       return {
-        code: 0,
+        code: 201,
         data: {
           id: user.id,
         },
@@ -48,13 +49,13 @@ export default class UsersController {
       const user = await User.find(params.id);
       if (user) {
         return {
-          code: 0,
+          code: 200,
           data: user,
         };
       } else {
         response.status(404);
         return {
-          code: 0,
+          code: 404,
           data: null,
         };
       }
@@ -79,7 +80,7 @@ export default class UsersController {
         await user.save();
 
         return {
-          code: 0,
+          code: 200,
           data: {
             id: user.id,
           },
@@ -87,7 +88,7 @@ export default class UsersController {
       } else {
         response.status(404);
         return {
-          code: 0,
+          code: 404,
           data: null,
         };
       }
@@ -107,7 +108,7 @@ export default class UsersController {
         user.deletedAt = DateTime.now().toISO();
         await user.save();
         return {
-          code: 0,
+          code: 200,
           data: {
             id: user.id,
           },
@@ -115,7 +116,7 @@ export default class UsersController {
       } else {
         response.status(404);
         return {
-          code: 0,
+          code: 404,
           data: null,
         };
       }

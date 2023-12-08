@@ -13,11 +13,11 @@ export default class TransactionsController {
         .whereNull("deletedAt");
 
       if (transactions && transactions.length > 0) {
-        return { code: 0, data: transactions };
+        return { code: 200, data: transactions };
       } else {
         response.status(404);
         return {
-          code: 0,
+          code: 404,
           data: null,
         };
       }
@@ -35,8 +35,9 @@ export default class TransactionsController {
       const data = request.body().data;
       const id = uuidv4();
       const transaction = await Transaction.create({ id, ...data });
+      response.status(201);
       return {
-        code: 0,
+        code: 201,
         data: {
           id: transaction.id,
         },
@@ -75,7 +76,7 @@ export default class TransactionsController {
       }
 
       return {
-        code: 0,
+        code: 200,
         data: transaction,
       };
     } catch (err) {

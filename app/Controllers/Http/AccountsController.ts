@@ -11,11 +11,11 @@ export default class AccountsController {
         .whereNull("deletedAt");
 
       if (accounts && accounts.length > 0) {
-        return { code: 0, data: accounts };
+        return { code: 200, data: accounts };
       } else {
         response.status(404);
         return {
-          code: 0,
+          code: 404,
           data: null,
         };
       }
@@ -33,8 +33,9 @@ export default class AccountsController {
       const data = request.body().data;
       const id = uuidv4();
       const account = await Account.create({ id, ...data });
+      response.status(201);
       return {
-        code: 0,
+        code: 201,
         data: {
           id: account.id,
         },
@@ -68,7 +69,7 @@ export default class AccountsController {
       }
 
       return {
-        code: 0,
+        code: 200,
         data: account,
       };
     } catch (err) {
