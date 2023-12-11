@@ -5,6 +5,6 @@
     "dbaeumer.vscode-eslint",
     "jripouteau.adonis-vscode-extension",
     "mikestead.dotenv",
-    "EditorConfig.EditorConfig",
+    "EditorConfig.EditorConfig"
   ]
 }

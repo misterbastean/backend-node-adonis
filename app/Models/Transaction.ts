@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime } from "luxon"
 import {
   BaseModel,
   BelongsTo,
@@ -6,51 +6,50 @@ import {
   belongsTo,
   column,
   hasOne,
-} from "@ioc:Adonis/Lucid/Orm";
-import Account from "@Models/Account";
-import Category from "@Models/Category";
+} from "@ioc:Adonis/Lucid/Orm"
+import { Account, Category } from "App/Models"
 
 export default class Transaction extends BaseModel {
   static get table() {
-    return "transaction"; // Specify the actual table name in the database
+    return "transaction" // Specify the actual table name in the database
   }
-  public static selfAssignPrimaryKey = true; // We will be assigning primary keys, not autoincrementing
+  public static selfAssignPrimaryKey = true // We will be assigning primary keys, not autoincrementing
 
   @column({ isPrimary: true })
-  public id: string;
+  public id: string
 
   @column()
-  public userId: string;
+  public userId: string
 
   @column()
-  public accountId: string;
+  public accountId: string
 
   @column()
-  public categoryId: string;
+  public categoryId: string
 
   @column()
-  public amount: number;
+  public amount: number
 
   @column()
-  public status: string;
+  public status: string
 
   @column()
-  public merchantName: string;
+  public merchantName: string
 
   @column.dateTime({ autoCreate: true })
-  public createdAt: DateTime;
+  public createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime;
+  public updatedAt: DateTime
 
   @column.dateTime()
-  public deletedAt: DateTime;
+  public deletedAt: DateTime
 
   // Establishes a Many to One relationship with Account
   @belongsTo(() => Account)
-  public account: BelongsTo<typeof Account>;
+  public account: BelongsTo<typeof Account>
 
   // Establishes a One to One relationship with Category
   @hasOne(() => Category)
-  public category: HasOne<typeof Category>;
+  public category: HasOne<typeof Category>
 }

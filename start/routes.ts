@@ -18,4 +18,4 @@
 |
 */
 
-import "./routes/api/v1";
+import "./routes/api/v1"

@@ -1,53 +1,53 @@
-import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
-import { DateTime } from "luxon";
-import Transaction from "@Models/Transaction";
-import { v4 as uuid } from "uuid";
+import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
+import { DateTime } from "luxon"
+import Transaction from "App/Models/Transaction"
+import { v4 as uuid } from "uuid"
 
 export default class TransactionsController {
   public async index({ response, params }: HttpContextContract) {
     try {
-      const { user_id: userId, account_id: accountId } = params;
+      const { user_id: userId, account_id: accountId } = params
       const transactions = await Transaction.query()
         .where("userId", userId)
         .where("accountId", accountId)
-        .whereNull("deletedAt");
+        .whereNull("deletedAt")
 
       if (transactions && transactions.length > 0) {
-        return { code: 200, data: transactions };
+        return { code: 200, data: transactions }
       } else {
-        response.status(404);
+        response.status(404)
         return {
           code: 404,
           data: null,
-        };
+        }
       }
     } catch (err) {
-      response.status(500);
+      response.status(500)
       return {
         code: 500,
         error: err.message,
-      };
+      }
     }
   }
 
   public async store({ request, response }: HttpContextContract) {
     try {
-      const data = request.body().data;
-      const id = uuid();
-      const transaction = await Transaction.create({ id, ...data });
-      response.status(201);
+      const data = request.body().data
+      const id = uuid()
+      const transaction = await Transaction.create({ id, ...data })
+      response.status(201)
       return {
         code: 201,
         data: {
           id: transaction.id,
         },
-      };
+      }
     } catch (err) {
-      response.status(500);
+      response.status(500)
       return {
         code: 500,
         error: err.message,
-      };
+      }
     }
   }
 
@@ -57,34 +57,34 @@ export default class TransactionsController {
         user_id: userId,
         account_id: accountId,
         id: transactionId,
-      } = params;
+      } = params
 
       const transaction = await Transaction.query()
         .where("id", transactionId)
         .where("userId", userId)
         .where("accountId", accountId)
         .whereNull("deletedAt")
-        .first();
+        .first()
       if (!transaction) {
-        response.status(404);
+        response.status(404)
         return {
           code: 404,
           data: {
             id: null,
           },
-        };
+        }
       }
 
       return {
         code: 200,
         data: transaction,
-      };
+      }
     } catch (err) {
-      response.status(500);
+      response.status(500)
       return {
         code: 500,
         error: err.message,
-      };
+      }
     }
   }
 
@@ -94,41 +94,41 @@ export default class TransactionsController {
         user_id: userId,
         account_id: accountId,
         id: transactionId,
-      } = params;
-      const data = request.body().data;
+      } = params
+      const data = request.body().data
 
       const transaction = await Transaction.query()
         .where("id", transactionId)
         .where("accountId", accountId)
         .where("userId", userId)
-        .first();
+        .first()
 
       if (!transaction) {
-        response.status(404);
+        response.status(404)
         return {
           code: 404,
           data: {
             id: null,
           },
-        };
+        }
       }
 
-      transaction.merge(data);
+      transaction.merge(data)
 
-      await transaction.save();
+      await transaction.save()
 
       return {
         code: 200,
         data: {
           id: transaction.id,
         },
-      };
+      }
     } catch (err) {
-      response.status(500);
+      response.status(500)
       return {
         code: 500,
         error: err.message,
-      };
+      }
     }
   }
 
@@ -138,39 +138,39 @@ export default class TransactionsController {
         user_id: userId,
         account_id: accountId,
         id: transactionId,
-      } = params;
-      let transaction = await Transaction.query()
+      } = params
+      const transaction = await Transaction.query()
         .where("id", transactionId)
         .where("accountId", accountId)
         .where("userId", userId)
         .whereNull("deletedAt")
-        .first();
+        .first()
 
       if (!transaction) {
-        response.status(404);
+        response.status(404)
         return {
           code: 404,
           data: {
             id: null,
           },
-        };
+        }
       }
 
-      transaction.deletedAt = DateTime.now().toISO();
-      await transaction.save();
+      transaction.deletedAt = DateTime.now().toISO()
+      await transaction.save()
 
       return {
         code: 200,
         data: {
           id: transaction.id,
         },
-      };
+      }
     } catch (err) {
-      response.status(500);
+      response.status(500)
       return {
         code: 500,
         error: err.message,
-      };
+      }
     }
   }
 }

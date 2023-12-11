@@ -5,9 +5,9 @@
  * file.
  */
 
-import Env from "@ioc:Adonis/Core/Env";
-import Application from "@ioc:Adonis/Core/Application";
-import type { DatabaseConfig } from "@ioc:Adonis/Lucid/Database";
+import Env from "@ioc:Adonis/Core/Env"
+import Application from "@ioc:Adonis/Core/Application"
+import type { DatabaseConfig } from "@ioc:Adonis/Lucid/Database"
 
 const databaseConfig: DatabaseConfig = {
   /*
@@ -37,7 +37,7 @@ const databaseConfig: DatabaseConfig = {
     sqlite: {
       client: "sqlite",
       connection: {
-        filename: Application.makePath("data/data.db"),
+        filename: Application.makePath("../data/data.db"),
       },
       migrations: {
         naturalSort: true,
@@ -47,6 +47,6 @@ const databaseConfig: DatabaseConfig = {
       debug: true,
     },
   },
-};
+}
 
-export default databaseConfig;
+export default databaseConfig
