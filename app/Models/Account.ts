@@ -3,11 +3,15 @@ import {
   BaseModel,
   BelongsTo,
   HasMany,
+  beforeCreate,
+  beforeUpdate,
   belongsTo,
   column,
   hasMany,
 } from "@ioc:Adonis/Lucid/Orm"
 import { User, Transaction } from "App/Models"
+import { formatDateTimeToISO } from "App/Utils"
+import { v4 as uuid } from "uuid"
 
 export default class Account extends BaseModel {
   static get table() {
@@ -42,10 +46,10 @@ export default class Account extends BaseModel {
   @column()
   public currencyCode: string
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime()
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime()
   public updatedAt: DateTime
 
   @column.dateTime()
@@ -58,4 +62,19 @@ export default class Account extends BaseModel {
   // Establishes a One to Many relationship with Transaction
   @hasMany(() => Transaction)
   public transaction: HasMany<typeof Transaction>
+
+  @beforeCreate()
+  public static setCreateTimestampFormat(value: Account) {
+    const newDate = formatDateTimeToISO(DateTime.local())
+    value.updatedAt = newDate
+    value.createdAt = newDate
+    const id = uuid()
+    value.id = id
+  }
+
+  @beforeUpdate()
+  public static setUpdateTimestampFormat(value: Account) {
+    const newDate = formatDateTimeToISO(DateTime.local())
+    value.updatedAt = newDate
+  }
 }

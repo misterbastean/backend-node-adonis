@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid"
 import { DateTime } from "luxon"
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { User } from "App/Models"
@@ -22,12 +21,9 @@ export default class UsersController {
       const data = request.body().data
 
       // TODO: Validate incoming data
-
-      const id = uuid()
-
       // TODO: Hash/salt password
 
-      const user = await User.create({ id, ...data }, {})
+      const user = await User.create(data)
       response.status(201)
       return {
         code: 201,
