@@ -11,7 +11,8 @@
     "App": "app",
     "Config": "config",
     "Database": "database",
-    "Contracts": "contracts"
+    "Contracts": "contracts",
+    "Tests": "tests"
   },
   "preloads": ["./start/routes", "./start/kernel"],
   "providers": ["./providers/AppProvider", "@adonisjs/core", "@adonisjs/lucid"],

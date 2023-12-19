@@ -14,6 +14,7 @@ import {
   apiClient,
 } from "@japa/preset-adonis"
 import Application from "@ioc:Adonis/Core/Application"
+import seedDb from "./utils/seedDb"
 
 /*
 |--------------------------------------------------------------------------
@@ -61,7 +62,7 @@ export const reporters: Required<Config>["reporters"] = [specReporter()]
 |
 */
 export const runnerHooks: Pick<Required<Config>, "setup" | "teardown"> = {
-  setup: [() => TestUtils.ace().loadCommands()],
+  setup: [() => TestUtils.ace().loadCommands(), () => seedDb()],
   teardown: [],
 }
 
