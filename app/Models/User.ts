@@ -1,6 +1,5 @@
 import { DateTime } from "luxon"
 import {
-  BaseModel,
   HasMany,
   beforeCreate,
   beforeUpdate,
@@ -10,8 +9,9 @@ import {
 import { Account } from "App/Models"
 import { formatDateTimeToISO } from "App/Utils"
 import { v4 as uuid } from "uuid"
+import Base from "App/Models/Base"
 
-export default class User extends BaseModel {
+export default class User extends Base {
   static get table() {
     return "user" // Specify the actual table name in the database
   }
@@ -49,17 +49,17 @@ export default class User extends BaseModel {
   public account: HasMany<typeof Account>
 
   @beforeCreate()
-  public static setCreateTimestampFormat(value: User) {
+  public static setCreateTimestampFormat(user: User) {
     const newDate = formatDateTimeToISO(DateTime.local())
-    value.updatedAt = newDate
-    value.createdAt = newDate
+    user.updatedAt = newDate
+    user.createdAt = newDate
     const id = uuid()
-    value.id = id
+    user.id = id
   }
 
   @beforeUpdate()
-  public static setUpdateTimestampFormat(value: User) {
+  public static setUpdateTimestampFormat(user: User) {
     const newDate = formatDateTimeToISO(DateTime.local())
-    value.updatedAt = newDate
+    user.updatedAt = newDate
   }
 }
