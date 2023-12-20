@@ -23,7 +23,12 @@ test.group("users", () => {
       code: 200,
       data: [
         {
-          email: "richard.mayert@test.com",
+          id: seeds.user.id,
+          email: seeds.user.email,
+          firstName: seeds.user.first_name,
+          lastName: seeds.user.last_name,
+          userName: seeds.user.user_name,
+          deletedAt: seeds.user.deleted_at,
         },
       ],
     })
@@ -33,6 +38,17 @@ test.group("users", () => {
     const response = await client.get(`/api/v1/user/${seeds.user.id}`)
     response.assertAgainstApiSpec()
     response.assertStatus(200)
+    response.assertBodyContains({
+      code: 200,
+      data: {
+        id: seeds.user.id,
+        email: seeds.user.email,
+        firstName: seeds.user.first_name,
+        lastName: seeds.user.last_name,
+        userName: seeds.user.user_name,
+        deletedAt: seeds.user.deleted_at,
+      },
+    })
   })
 
   test("it should update a single user", async ({ client }) => {

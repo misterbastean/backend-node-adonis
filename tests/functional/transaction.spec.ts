@@ -28,9 +28,9 @@ test.group("transactions", () => {
       code: 200,
       data: [
         {
-          user_id: seeds.user.id,
-          account_id: seeds.account.id,
-          deleted_at: null,
+          userId: seeds.user.id,
+          accountId: seeds.account.id,
+          deletedAt: null,
         },
       ],
     })
@@ -46,9 +46,9 @@ test.group("transactions", () => {
       code: 200,
       data: {
         id: seeds.transaction.id,
-        user_id: seeds.user.id,
-        account_id: seeds.account.id,
-        deleted_at: null,
+        userId: seeds.user.id,
+        accountId: seeds.account.id,
+        deletedAt: null,
       },
     })
   })

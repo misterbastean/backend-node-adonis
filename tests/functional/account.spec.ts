@@ -21,7 +21,7 @@ test.group("accounts", () => {
     response.assertStatus(200)
     response.assertBodyContains({
       code: 200,
-      data: [{ deleted_at: null }],
+      data: [{ deletedAt: null }],
     })
   })
 
@@ -35,7 +35,7 @@ test.group("accounts", () => {
       code: 200,
       data: {
         id: seeds.account.id,
-        deleted_at: null,
+        deletedAt: null,
       },
     })
   })
