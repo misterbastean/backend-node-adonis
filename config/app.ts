@@ -66,7 +66,7 @@ export const http: ServerConfig = {
   | HTTP request and set it as `x-request-id` header.
   |
   */
-  generateRequestId: false,
+  generateRequestId: true,
 
   /*
   |--------------------------------------------------------------------------
@@ -181,6 +181,11 @@ export const logger: LoggerConfig = {
   |
   */
   prettyPrint: Env.get("NODE_ENV") === "development",
+  // Redacting sensitive information, such as user passwords
+  redact: {
+    paths: ["password", "*.password"],
+    censor: "[PRIVATE]",
+  },
 }
 
 /*

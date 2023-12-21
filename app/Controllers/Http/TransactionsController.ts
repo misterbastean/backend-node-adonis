@@ -3,17 +3,22 @@ import { DateTime } from "luxon"
 import Transaction from "App/Models/Transaction"
 
 export default class TransactionsController {
-  public async index({ response, params }: HttpContextContract) {
+  public async index({ response, params, logger }: HttpContextContract) {
     try {
       const { user_id: userId, account_id: accountId } = params
+      logger.debug(params, "params:")
       const transactions = await Transaction.query()
         .where("userId", userId)
         .where("accountId", accountId)
         .whereNull("deletedAt")
+      logger.debug(transactions, "Found transactions:")
 
       if (transactions && transactions.length > 0) {
         return { code: 200, data: transactions }
       } else {
+        logger.info(
+          `No transactions found for User ID ${userId}, Account ID ${accountId}`,
+        )
         response.status(404)
         return {
           code: 404,
@@ -21,6 +26,7 @@ export default class TransactionsController {
         }
       }
     } catch (err) {
+      logger.error({ err }, "Transaction index")
       response.status(500)
       return {
         code: 500,
@@ -29,10 +35,12 @@ export default class TransactionsController {
     }
   }
 
-  public async store({ request, response }: HttpContextContract) {
+  public async store({ request, response, logger }: HttpContextContract) {
     try {
       const data = request.body().data
+      logger.debug(data, "Transaction store request data")
       const transaction = await Transaction.create(data)
+      logger.debug(transaction, "Created transaction")
       response.status(201)
       return {
         code: 201,
@@ -41,6 +49,7 @@ export default class TransactionsController {
         },
       }
     } catch (err) {
+      logger.error({ err }, "Transaction store")
       response.status(500)
       return {
         code: 500,
@@ -49,13 +58,14 @@ export default class TransactionsController {
     }
   }
 
-  public async show({ params, response }: HttpContextContract) {
+  public async show({ params, response, logger }: HttpContextContract) {
     try {
       const {
         user_id: userId,
         account_id: accountId,
         id: transactionId,
       } = params
+      logger.debug(params, "Transaction show params")
 
       const transaction = await Transaction.query()
         .where("id", transactionId)
@@ -63,7 +73,11 @@ export default class TransactionsController {
         .where("accountId", accountId)
         .whereNull("deletedAt")
         .first()
+      logger.debug(transaction, "Found transaction")
       if (!transaction) {
+        logger.info(
+          `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
+        )
         response.status(404)
         return {
           code: 404,
@@ -78,6 +92,7 @@ export default class TransactionsController {
         data: transaction,
       }
     } catch (err) {
+      logger.error({ err }, "Transaction show")
       response.status(500)
       return {
         code: 500,
@@ -86,22 +101,33 @@ export default class TransactionsController {
     }
   }
 
-  public async update({ params, request, response }: HttpContextContract) {
+  public async update({
+    params,
+    request,
+    response,
+    logger,
+  }: HttpContextContract) {
     try {
       const {
         user_id: userId,
         account_id: accountId,
         id: transactionId,
       } = params
+      logger.debug(params, "Transaction update params")
       const data = request.body().data
+      logger.debug(data, "Transaction update data")
 
       const transaction = await Transaction.query()
         .where("id", transactionId)
         .where("accountId", accountId)
         .where("userId", userId)
         .first()
+      logger.debug(transaction, "Found transaction")
 
       if (!transaction) {
+        logger.info(
+          `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
+        )
         response.status(404)
         return {
           code: 404,
@@ -114,6 +140,7 @@ export default class TransactionsController {
       transaction.merge(data)
 
       await transaction.save()
+      logger.debug(transaction, "Updated transaction")
 
       return {
         code: 200,
@@ -122,6 +149,7 @@ export default class TransactionsController {
         },
       }
     } catch (err) {
+      logger.error({ err }, "Transaction update")
       response.status(500)
       return {
         code: 500,
@@ -130,21 +158,25 @@ export default class TransactionsController {
     }
   }
 
-  public async destroy({ params, response }: HttpContextContract) {
+  public async destroy({ params, response, logger }: HttpContextContract) {
     try {
       const {
         user_id: userId,
         account_id: accountId,
         id: transactionId,
       } = params
+      logger.debug(params, "Transaction destroy params")
       const transaction = await Transaction.query()
         .where("id", transactionId)
         .where("accountId", accountId)
         .where("userId", userId)
         .whereNull("deletedAt")
         .first()
-
+      logger.debug(transaction, "Found transaction")
       if (!transaction) {
+        logger.info(
+          `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
+        )
         response.status(404)
         return {
           code: 404,
@@ -164,6 +196,7 @@ export default class TransactionsController {
         },
       }
     } catch (err) {
+      logger.error({ err }, "Transaction destroy")
       response.status(500)
       return {
         code: 500,
