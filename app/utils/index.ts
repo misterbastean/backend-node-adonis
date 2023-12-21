@@ -1,3 +1,4 @@
 import { default as formatDateTimeToISO } from "./formatDateTimeToISO"
+import { hashPassword, checkPassword } from "./hashing"
 
-export { formatDateTimeToISO }
+export { formatDateTimeToISO, hashPassword, checkPassword }

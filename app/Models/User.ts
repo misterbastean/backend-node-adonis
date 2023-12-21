@@ -2,12 +2,13 @@ import { DateTime } from "luxon"
 import {
   HasMany,
   beforeCreate,
+  beforeSave,
   beforeUpdate,
   column,
   hasMany,
 } from "@ioc:Adonis/Lucid/Orm"
 import { Account } from "App/Models"
-import { formatDateTimeToISO } from "App/Utils"
+import { formatDateTimeToISO, hashPassword } from "App/Utils"
 import { v4 as uuid } from "uuid"
 import Base from "App/Models/Base"
 
@@ -61,5 +62,12 @@ export default class User extends Base {
   public static setUpdateTimestampFormat(user: User) {
     const newDate = formatDateTimeToISO(DateTime.local())
     user.updatedAt = newDate
+  }
+
+  @beforeSave()
+  public static async hashPassword(user: User) {
+    if (user.$dirty.password) {
+      user.password = await hashPassword(user.password)
+    }
   }
 }
