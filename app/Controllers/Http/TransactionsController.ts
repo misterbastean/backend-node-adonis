@@ -1,16 +1,30 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { DateTime } from "luxon"
 import Transaction from "App/Models/Transaction"
+import { formatDateTimeToISO } from "App/Utils"
 
 export default class TransactionsController {
   public async index({ response, params, logger }: HttpContextContract) {
     try {
-      const { user_id: userId, account_id: accountId } = params
+      const { userId, accountId } = params
       logger.debug(params, "params:")
       const transactions = await Transaction.query()
+        .select([
+          "accountId",
+          "amount",
+          "createdAt",
+          "id",
+          "merchant",
+          "operation",
+          "status",
+          "transactionTypeId",
+          "updatedAt",
+          "userId",
+        ])
         .where("userId", userId)
         .where("accountId", accountId)
         .whereNull("deletedAt")
+
       logger.debug(transactions, "Found transactions:")
 
       if (transactions && transactions.length > 0) {
@@ -38,6 +52,7 @@ export default class TransactionsController {
   public async store({ request, response, logger }: HttpContextContract) {
     try {
       const data = request.body().data
+
       logger.debug(data, "Transaction store request data")
       const transaction = await Transaction.create(data)
       logger.debug(transaction, "Created transaction")
@@ -45,7 +60,9 @@ export default class TransactionsController {
       return {
         code: 201,
         data: {
-          id: transaction.id,
+          ...transaction.$attributes,
+          createdAt: undefined,
+          updatedAt: undefined,
         },
       }
     } catch (err) {
@@ -60,32 +77,28 @@ export default class TransactionsController {
 
   public async show({ params, response, logger }: HttpContextContract) {
     try {
-      const {
-        user_id: userId,
-        account_id: accountId,
-        id: transactionId,
-      } = params
+      const { userId, accountId, transactionId } = params
       logger.debug(params, "Transaction show params")
 
       const transaction = await Transaction.query()
         .where("id", transactionId)
         .where("userId", userId)
         .where("accountId", accountId)
-        .whereNull("deletedAt")
         .first()
+
       logger.debug(transaction, "Found transaction")
-      if (!transaction) {
+      if (!transaction || transaction.deletedAt) {
         logger.info(
           `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
         )
         response.status(404)
         return {
           code: 404,
-          data: {
-            id: null,
-          },
+          error: "Transaction not found.",
         }
       }
+
+      delete transaction.$attributes.deletedAt
 
       return {
         code: 200,
@@ -108,13 +121,10 @@ export default class TransactionsController {
     logger,
   }: HttpContextContract) {
     try {
-      const {
-        user_id: userId,
-        account_id: accountId,
-        id: transactionId,
-      } = params
+      const { userId, accountId, transactionId } = params
       logger.debug(params, "Transaction update params")
       const data = request.body().data
+
       logger.debug(data, "Transaction update data")
 
       const transaction = await Transaction.query()
@@ -145,7 +155,10 @@ export default class TransactionsController {
       return {
         code: 200,
         data: {
-          id: transaction.id,
+          ...transaction.$attributes,
+          createdAt: undefined,
+          updatedAt: undefined,
+          deletedAt: undefined,
         },
       }
     } catch (err) {
@@ -160,20 +173,15 @@ export default class TransactionsController {
 
   public async destroy({ params, response, logger }: HttpContextContract) {
     try {
-      const {
-        user_id: userId,
-        account_id: accountId,
-        id: transactionId,
-      } = params
+      const { userId, accountId, transactionId } = params
       logger.debug(params, "Transaction destroy params")
       const transaction = await Transaction.query()
         .where("id", transactionId)
         .where("accountId", accountId)
         .where("userId", userId)
-        .whereNull("deletedAt")
         .first()
       logger.debug(transaction, "Found transaction")
-      if (!transaction) {
+      if (!transaction || transaction.deletedAt) {
         logger.info(
           `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
         )
@@ -186,7 +194,7 @@ export default class TransactionsController {
         }
       }
 
-      transaction.deletedAt = DateTime.now().toISO()
+      transaction.deletedAt = formatDateTimeToISO(DateTime.local())
       await transaction.save()
 
       return {

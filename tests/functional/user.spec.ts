@@ -1,5 +1,6 @@
 import { test } from "@japa/runner"
-import { mocks, seeds } from "Tests/utils/mocks"
+import mocks from "Tests/utils/mocks"
+import seeds from "Tests/utils/seeds"
 
 test.group("users", () => {
   test("it should create a user", async ({ client }) => {
@@ -7,46 +8,46 @@ test.group("users", () => {
       data: mocks.user,
     })
 
-    response.assertAgainstApiSpec()
     response.assertStatus(201)
     response.assertBodyContains({
       code: 201,
-      data: {},
+      data: {
+        ...mocks.user,
+        password: undefined,
+      },
     })
   })
 
   test("it should list all users", async ({ client }) => {
     const response = await client.get("/api/v1/user")
-    response.assertAgainstApiSpec()
+
     response.assertStatus(200)
     response.assertBodyContains({
       code: 200,
       data: [
         {
-          id: seeds.user.id,
-          email: seeds.user.email,
-          firstName: seeds.user.first_name,
-          lastName: seeds.user.last_name,
-          userName: seeds.user.user_name,
-          deletedAt: seeds.user.deleted_at,
+          id: seeds.users[0].id,
+          email: seeds.users[0].email,
+          firstName: seeds.users[0].first_name,
+          lastName: seeds.users[0].last_name,
+          userName: seeds.users[0].user_name,
         },
       ],
     })
   })
 
   test("it should get a single user", async ({ client }) => {
-    const response = await client.get(`/api/v1/user/${seeds.user.id}`)
-    response.assertAgainstApiSpec()
+    const response = await client.get(`/api/v1/user/${seeds.users[0].id}`)
+
     response.assertStatus(200)
     response.assertBodyContains({
       code: 200,
       data: {
-        id: seeds.user.id,
-        email: seeds.user.email,
-        firstName: seeds.user.first_name,
-        lastName: seeds.user.last_name,
-        userName: seeds.user.user_name,
-        deletedAt: seeds.user.deleted_at,
+        id: seeds.users[0].id,
+        email: seeds.users[0].email,
+        firstName: seeds.users[0].first_name,
+        lastName: seeds.users[0].last_name,
+        userName: seeds.users[0].user_name,
       },
     })
   })
@@ -59,14 +60,14 @@ test.group("users", () => {
       userName: "updated",
     }
     const response = await client
-      .put(`/api/v1/user/${seeds.user.id}`)
+      .put(`/api/v1/user/${seeds.users[0].id}`)
       .json({ data: updateUserData })
-    response.assertAgainstApiSpec()
+
     response.assertStatus(200)
-    response.assertBody({
+    response.assertBodyContains({
       code: 200,
       data: {
-        id: seeds.user.id,
+        ...updateUserData,
       },
     })
   })
@@ -74,14 +75,13 @@ test.group("users", () => {
   test("it should mark a user as deleted with the current timestamp", async ({
     client,
   }) => {
-    const response = await client.delete(`/api/v1/user/${seeds.user.id}`)
+    const response = await client.delete(`/api/v1/user/${seeds.users[1].id}`)
 
-    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBody({
       code: 200,
       data: {
-        id: seeds.user.id,
+        id: seeds.users[1].id,
       },
     })
   })

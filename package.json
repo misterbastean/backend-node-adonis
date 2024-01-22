@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node ace build && node ace serve --watch",
+    "dev": "node ace serve --watch",
     "build": "node ace build --production",
     "preinstall": "npx only-allow pnpm",
     "start": "node ace build && node server.js",

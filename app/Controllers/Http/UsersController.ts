@@ -1,13 +1,30 @@
 import { DateTime } from "luxon"
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { User } from "App/Models"
+import { formatDateTimeToISO } from "App/Utils"
 
 export default class UsersController {
   public async index({ response, logger }: HttpContextContract) {
     try {
-      const users = await User.all()
+      const users = await User.query()
+        .from("user")
+        .select(
+          "id",
+          "userName",
+          "firstName",
+          "lastName",
+          "email",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+        )
       logger.debug(users, "Found users")
-      return { code: 200, data: users }
+      const prunedUsers = users.map((user) => {
+        delete user.$attributes.deletedAt
+        return user
+      })
+
+      return { code: 200, data: prunedUsers }
     } catch (err) {
       logger.error({ err }, "User index")
       response.status(500)
@@ -24,15 +41,15 @@ export default class UsersController {
       logger.debug(data, "Received data")
 
       // TODO: Validate incoming data
-      // TODO: Hash/salt password
 
-      const user = await User.create(data)
+      const user = await User.create({ ...data, role: "user" })
       logger.debug(user, "Created user")
       response.status(201)
       return {
         code: 201,
         data: {
-          id: user.id,
+          ...user.$attributes,
+          password: undefined,
         },
       }
     } catch (err) {
@@ -47,15 +64,31 @@ export default class UsersController {
 
   public async show({ params, response, logger }: HttpContextContract) {
     try {
-      const user = await User.find(params.id)
-      if (user) {
-        logger.debug(user, "Found user:")
+      const user = await User.query()
+        .from("user")
+        .select(
+          "id",
+          "userName",
+          "firstName",
+          "lastName",
+          "email",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+        )
+        .where("id", params.userId)
+        .first()
+
+      // Cannot check if deletedAt is null during DB query due to luxom formatting issues
+      // with how the SQLite DB value is stored.
+      if (user && !user.deletedAt) {
+        delete user.$attributes.deletedAt
         return {
           code: 200,
           data: user,
         }
       } else {
-        logger.info(`No user found with ID ${params.id}`)
+        logger.info(`No user found with ID ${params.userId}`)
         response.status(404)
         return {
           code: 404,
@@ -79,7 +112,7 @@ export default class UsersController {
     logger,
   }: HttpContextContract) {
     try {
-      const user = await User.find(params.id)
+      const user = await User.find(params.userId)
       logger.debug(user, "Found user")
       if (user) {
         const data = request.body().data
@@ -93,11 +126,13 @@ export default class UsersController {
         return {
           code: 200,
           data: {
-            id: user.id,
+            ...user.$attributes,
+            password: undefined,
+            deletedAt: undefined,
           },
         }
       } else {
-        logger.info(`User not found with ID of ${params.id}`)
+        logger.info(`User not found with ID of ${params.userId}`)
         response.status(404)
         return {
           code: 404,
@@ -116,10 +151,10 @@ export default class UsersController {
 
   public async destroy({ params, response, logger }: HttpContextContract) {
     try {
-      const user = await User.find(params.id)
+      const user = await User.find(params.userId)
       logger.debug(user, "Found user:")
       if (user) {
-        user.deletedAt = DateTime.now().toISO()
+        user.deletedAt = formatDateTimeToISO(DateTime.local())
         await user.save()
         return {
           code: 200,
@@ -128,7 +163,7 @@ export default class UsersController {
           },
         }
       } else {
-        logger.info(`User not found with ID of ${params.id}`)
+        logger.info(`User not found with ID of ${params.userId}`)
         response.status(404)
         return {
           code: 404,
@@ -145,10 +180,21 @@ export default class UsersController {
     }
   }
 
-  public async auth({ request }: HttpContextContract) {
+  public async login() {
     return {
-      message: "Authorize user",
-      body: request.body(),
+      code: 200,
+      data: {
+        success: true,
+      },
+    }
+  }
+
+  public async logout() {
+    return {
+      code: 200,
+      data: {
+        success: true,
+      },
     }
   }
 }

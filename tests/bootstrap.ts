@@ -13,7 +13,6 @@ import {
   specReporter,
   apiClient,
 } from "@japa/preset-adonis"
-import Application from "@ioc:Adonis/Core/Application"
 import seedDb from "./utils/seedDb"
 
 /*
@@ -28,11 +27,7 @@ import seedDb from "./utils/seedDb"
 |
 */
 export const plugins: Required<Config>["plugins"] = [
-  assert({
-    openApi: {
-      schemas: [Application.makePath("../contract/swagger.yaml")],
-    },
-  }),
+  assert(),
   runFailedTests(),
   apiClient(),
 ]

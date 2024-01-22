@@ -29,7 +29,7 @@ export default class Transaction extends Base {
   public accountId: string
 
   @column()
-  public categoryId: string
+  public transactionTypeId: string
 
   @column()
   public amount: number
@@ -38,7 +38,10 @@ export default class Transaction extends Base {
   public status: string
 
   @column()
-  public merchantName: string
+  public operation: string
+
+  @column()
+  public merchant: string
 
   @column.dateTime()
   public createdAt: DateTime

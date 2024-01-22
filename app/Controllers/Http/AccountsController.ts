@@ -1,19 +1,34 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { DateTime } from "luxon"
 import { Account } from "App/Models"
+import { formatDateTimeToISO } from "App/Utils"
 
 export default class AccountsController {
   public async index({ response, params, logger }: HttpContextContract) {
     try {
       const accounts = await Account.query()
-        .where("userId", params.user_id)
+        .select([
+          "accountNumber",
+          "accountTypeId",
+          "amount",
+          "availableAmount",
+          "createdAt",
+          "currencyCode",
+          "id",
+          "name",
+          "routingNumber",
+          "updatedAt",
+          "userId",
+        ])
+        .where("userId", params.userId)
         .whereNull("deletedAt")
 
       if (accounts && accounts.length > 0) {
         logger.debug(accounts, "Found accounts")
+
         return { code: 200, data: accounts }
       } else {
-        logger.info(`No accounts found for User with ID of ${params.user_id}`)
+        logger.info(`No accounts found for User with ID of ${params.userId}`)
         response.status(404)
         return {
           code: 404,
@@ -40,7 +55,9 @@ export default class AccountsController {
       return {
         code: 201,
         data: {
-          id: account.id,
+          ...account.$attributes,
+          createdAt: undefined,
+          updatedAt: undefined,
         },
       }
     } catch (err) {
@@ -55,15 +72,28 @@ export default class AccountsController {
 
   public async show({ params, response, logger }: HttpContextContract) {
     try {
-      const { user_id: userId, id: accountId } = params
+      const { userId, accountId } = params
       logger.debug(params, "Request params")
 
       const account = await Account.query()
         .where("id", accountId)
         .where("userId", userId)
-        .whereNull("deletedAt")
+        .select(
+          "accountNumber",
+          "accountTypeId",
+          "amount",
+          "availableAmount",
+          "createdAt",
+          "currencyCode",
+          "id",
+          "name",
+          "routingNumber",
+          "updatedAt",
+          "userId",
+          "deletedAt",
+        )
         .first()
-      if (!account) {
+      if (!account || account.deletedAt) {
         logger.info(
           `Account not found for User with ID of ${userId} and Account with id of ${accountId}`,
         )
@@ -76,6 +106,7 @@ export default class AccountsController {
         }
       }
       logger.debug(account, "Found account:")
+      delete account.$attributes["deletedAt"]
       return {
         code: 200,
         data: account,
@@ -97,7 +128,7 @@ export default class AccountsController {
     logger,
   }: HttpContextContract) {
     try {
-      const { user_id: userId, id: accountId } = params
+      const { userId, accountId } = params
       logger.debug(params, "Request params")
       const data = request.body().data
       logger.debug(data, "Request data")
@@ -128,7 +159,9 @@ export default class AccountsController {
       return {
         code: 200,
         data: {
-          id: account.id,
+          ...account.$attributes,
+          createdAt: undefined,
+          updatedAt: undefined,
         },
       }
     } catch (err) {
@@ -143,12 +176,11 @@ export default class AccountsController {
 
   public async destroy({ params, response, logger }: HttpContextContract) {
     try {
-      const { user_id: userId, id: accountId } = params
+      const { userId, accountId } = params
       logger.debug(params, "Request params:")
       const account = await Account.query()
         .where("id", accountId)
         .where("userId", userId)
-        .whereNull("deletedAt")
         .first()
 
       if (!account) {
@@ -164,7 +196,7 @@ export default class AccountsController {
         }
       }
 
-      account.deletedAt = DateTime.now().toISO()
+      account.deletedAt = formatDateTimeToISO(DateTime.local())
       await account.save()
 
       return {

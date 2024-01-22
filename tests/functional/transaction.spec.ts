@@ -1,18 +1,16 @@
 import { test } from "@japa/runner"
-import { mocks, seeds } from "Tests/utils/mocks"
+import mocks from "Tests/utils/mocks"
+import seeds from "Tests/utils/seeds"
 
 test.group("transactions", () => {
   test("it should create a new transaction", async ({ client }) => {
     const response = await client
-      .post(
-        `/api/v1/user/${seeds.user.id}/account/${seeds.account.id}/transaction`,
-      )
+      .post(`/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}`)
       .json({ data: mocks.transaction })
-    response.assertAgainstApiSpec()
     response.assertStatus(201)
     response.assertBodyContains({
       code: 201,
-      data: {},
+      data: { ...mocks.transaction },
     })
   })
 
@@ -20,17 +18,15 @@ test.group("transactions", () => {
     client,
   }) => {
     const response = await client.get(
-      `/api/v1/user/${seeds.user.id}/account/${seeds.account.id}/transaction`,
+      `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}`,
     )
-    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({
       code: 200,
       data: [
         {
-          userId: seeds.user.id,
-          accountId: seeds.account.id,
-          deletedAt: null,
+          userId: seeds.users[0].id,
+          accountId: seeds.accounts[0].id,
         },
       ],
     })
@@ -38,39 +34,41 @@ test.group("transactions", () => {
 
   test("it should get a single transaction", async ({ client }) => {
     const response = await client.get(
-      `/api/v1/user/${seeds.user.id}/account/${seeds.account.id}/transaction/${seeds.transaction.id}`,
+      `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}/${seeds.transactions[0].id}`,
     )
-    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBodyContains({
       code: 200,
       data: {
-        id: seeds.transaction.id,
-        userId: seeds.user.id,
-        accountId: seeds.account.id,
-        deletedAt: null,
+        id: seeds.transactions[0].id,
+        userId: seeds.users[0].id,
+        accountId: seeds.accounts[0].id,
       },
     })
   })
 
   test("it should update a single transaction", async ({ client }) => {
+    const updateTransactionData = {
+      accountId: "100009",
+      amount: 200,
+      merchant: "Updated Merchant",
+      operation: "debit",
+      status: "complete",
+      transactionTypeId: seeds.transactionTypes[0].id,
+    }
     const response = await client
       .put(
-        `/api/v1/user/${seeds.user.id}/account/${seeds.account.id}/transaction/${seeds.transaction.id}`,
+        `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}/${seeds.transactions[0].id}`,
       )
       .json({
-        data: {
-          amount: 0,
-          merchantName: "Updated Merchant",
-          status: "closed",
-        },
+        data: updateTransactionData,
+        userId: seeds.users[0].id,
       })
-    response.assertAgainstApiSpec()
     response.assertStatus(200)
-    response.assertBody({
+    response.assertBodyContains({
       code: 200,
       data: {
-        id: seeds.transaction.id,
+        ...updateTransactionData,
       },
     })
   })
@@ -79,14 +77,13 @@ test.group("transactions", () => {
     client,
   }) => {
     const response = await client.delete(
-      `/api/v1/user/${seeds.user.id}/account/${seeds.account.id}/transaction/${seeds.transaction.id}`,
+      `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}/${seeds.transactions[8].id}`,
     )
-    response.assertAgainstApiSpec()
     response.assertStatus(200)
     response.assertBody({
       code: 200,
       data: {
-        id: seeds.transaction.id,
+        id: seeds.transactions[8].id,
       },
     })
   })

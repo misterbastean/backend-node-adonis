@@ -25,6 +25,9 @@ export default class User extends Base {
   public userName: string
 
   @column()
+  public role: string
+
+  @column()
   public firstName: string
 
   @column()

@@ -26,7 +26,7 @@ export default class Account extends Base {
   public userId: string
 
   @column()
-  public categoryId: string
+  public accountTypeId: string
 
   @column()
   public name: string
