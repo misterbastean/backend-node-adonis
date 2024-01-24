@@ -82,7 +82,7 @@ const seedUserData = [
     last_name: "Doe",
     email: "jane.doe@example.com",
     password:
-      "JDJhJDEwJG9jaE9pN3BvOGU2RzFsNmx6aWdwMGVjU3pway9jQmdQV0ZuWndpVXZib0lMQlpvMm8wU0VH",
+      "JDJhJDEwJG0uemoxQW5Ra1AwL0VMd2oyaEcuMHVad1JhMk5MaWFmLm1rNmluTnR0bFU3U2xWbXVjUkpx",
     role: "user",
     created_at: "2024-01-09 06:27:54.620231-05:00",
     updated_at: "2024-01-09 06:27:54.620231-05:00",
@@ -95,7 +95,7 @@ const seedUserData = [
     last_name: "Doe",
     email: "john.doe@example.com",
     password:
-      "JDJhJDEwJG9jaE9pN3BvOGU2RzFsNmx6aWdwMGVjU3pway9jQmdQV0ZuWndpVXZib0lMQlpvMm8wU0VH",
+      "JDJhJDEwJG0uemoxQW5Ra1AwL0VMd2oyaEcuMHVad1JhMk5MaWFmLm1rNmluTnR0bFU3U2xWbXVjUkpx",
     role: "admin",
     created_at: "2024-01-09 06:27:54.620231-05:00",
     updated_at: "2024-01-09 06:27:54.620231-05:00",

@@ -1,28 +1,27 @@
 import Route from "@ioc:Adonis/Core/Route"
 
-// Route.group(() => {
-//   Route.resource("user", "UsersController").apiOnly()
-//   Route.post("/login", "UsersController.login").as("user.login")
-//   Route.post("/logout", "UsersController.logout").as("user.logout")
-//   Route.resource("account", "AccountsController").apiOnly()
-//   Route.resource("user.account.transaction", "TransactionsController").apiOnly()
-// })
-//   .as("api.v1")
-//   .prefix("/api/v1")
-
 Route.group(() => {
   // Accounts
   Route.group(() => {
-    Route.get("/", "AccountsController.index").as("listAccount")
-    Route.post("/", "AccountsController.store").as("createAccount")
-    Route.get("/:accountId", "AccountsController.show").as("showAccount")
-    Route.put("/:accountId", "AccountsController.update").as("updateAccount")
-    Route.delete("/:accountId", "AccountsController.destroy").as(
-      "destroyAccount",
-    )
+    Route.get("/", "AccountsController.index")
+      .as("listAccount")
+      .middleware("requiresAuth")
+    Route.post("/", "AccountsController.store")
+      .as("createAccount")
+      .middleware("requiresAuth")
+    Route.get("/:accountId", "AccountsController.show")
+      .as("showAccount")
+      .middleware("requiresAuth")
+    Route.put("/:accountId", "AccountsController.update")
+      .as("updateAccount")
+      .middleware("requiresAuth")
+    Route.delete("/:accountId", "AccountsController.destroy")
+      .as("destroyAccount")
+      .middleware("requiresAuth")
   })
     .as("account")
     .prefix("/account/:userId")
+
   // Transactions
   Route.group(() => {
     Route.get("/", "TransactionsController.index").as("listTransaction")
@@ -39,13 +38,23 @@ Route.group(() => {
   })
     .as("transaction")
     .prefix("/transaction/:userId/:accountId")
+    .middleware("requiresAuth")
+
   // Users
   Route.group(() => {
-    Route.get("/", "UsersController.index").as("listUser")
+    Route.get("/", "UsersController.index")
+      .as("listUser")
+      .middleware("requiresAdmin")
     Route.post("/", "UsersController.store").as("createUser")
-    Route.get("/:userId", "UsersController.show").as("showUser")
-    Route.put("/:userId", "UsersController.update").as("updateUser")
-    Route.delete("/:userId", "UsersController.destroy").as("destroyUser")
+    Route.get("/:userId", "UsersController.show")
+      .as("showUser")
+      .middleware("requiresAuth")
+    Route.put("/:userId", "UsersController.update")
+      .as("updateUser")
+      .middleware("requiresAuth")
+    Route.delete("/:userId", "UsersController.destroy")
+      .as("destroyUser")
+      .middleware("requiresAuth")
   })
     .as("user")
     .prefix("/user")
@@ -57,3 +66,4 @@ Route.group(() => {
 })
   .as("api.v1")
   .prefix("/api/v1")
+  .withUser()

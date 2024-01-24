@@ -12,6 +12,8 @@ import { formatDateTimeToISO, hashPassword } from "App/Utils"
 import { v4 as uuid } from "uuid"
 import Base from "App/Models/Base"
 
+export type Role = "admin" | "user"
+
 export default class User extends Base {
   static get table() {
     return "user" // Specify the actual table name in the database
@@ -25,7 +27,7 @@ export default class User extends Base {
   public userName: string
 
   @column()
-  public role: string
+  public role: Role
 
   @column()
   public firstName: string

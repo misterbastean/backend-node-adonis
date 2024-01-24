@@ -1,12 +1,16 @@
 import { DateTime } from "luxon"
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { User } from "App/Models"
-import { formatDateTimeToISO } from "App/Utils"
+import {
+  checkPassword,
+  createBearerToken,
+  formatDateTimeToISO,
+} from "App/Utils"
 
 export default class UsersController {
   public async index({ response, logger }: HttpContextContract) {
     try {
-      const users = await User.query()
+      const foundUsers = await User.query()
         .from("user")
         .select(
           "id",
@@ -16,15 +20,11 @@ export default class UsersController {
           "email",
           "createdAt",
           "updatedAt",
-          "deletedAt",
         )
-      logger.debug(users, "Found users")
-      const prunedUsers = users.map((user) => {
-        delete user.$attributes.deletedAt
-        return user
-      })
+        .whereNull("deletedAt")
+      logger.debug(foundUsers, "Found users")
 
-      return { code: 200, data: prunedUsers }
+      return { code: 200, data: foundUsers }
     } catch (err) {
       logger.error({ err }, "User index")
       response.status(500)
@@ -180,12 +180,56 @@ export default class UsersController {
     }
   }
 
-  public async login() {
-    return {
-      code: 200,
-      data: {
-        success: true,
-      },
+  public async login({ request, response, logger }) {
+    const invalidLoginResponse = {
+      code: 401,
+      error: "Invalid username or password",
+    }
+    try {
+      const body = request.body().data
+
+      const user = await User.query()
+        .from("user")
+        .select(
+          "id",
+          "userName",
+          "password",
+          "role",
+          "firstName",
+          "lastName",
+          "email",
+        )
+        .where("email", body.email)
+        .first()
+
+      if (!user) {
+        response.status(401)
+        return invalidLoginResponse
+      }
+
+      const passwordMatches = await checkPassword(user.password, body.password)
+      if (!passwordMatches) {
+        response.status(401)
+        return invalidLoginResponse
+      }
+
+      const accessToken = await createBearerToken(user)
+
+      return {
+        code: 200,
+        data: {
+          accessToken,
+          tokenType: "Bearer",
+          expiresIn: 3600, // 1 hour in seconds
+        },
+      }
+    } catch (err) {
+      logger.error({ err }, "User login")
+      response.status(500)
+      return {
+        code: 500,
+        error: err.message,
+      }
     }
   }
 
