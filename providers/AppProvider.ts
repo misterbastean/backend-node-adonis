@@ -52,8 +52,14 @@ export default class AppProvider {
             }
           }
         } catch (err) {
-          console.error("Error populating user:")
-          console.error(err)
+          ctx.user = undefined
+          if (err.message === "invalid signature") {
+            ctx.logger.debug("Invalid JWT Signature")
+          } else if (err.message === "jwt malformed") {
+            ctx.logger.debug("JWT malformed")
+          } else {
+            ctx.logger.error("Error parsing JWT:", [err.message])
+          }
         } finally {
           await next()
         }

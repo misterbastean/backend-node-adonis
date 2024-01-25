@@ -13,7 +13,7 @@ test.group("accounts", () => {
   test("it should successfully authenticate as admin user", async ({
     client,
   }) => {
-    const response = await client.post("/api/v1/login").json({
+    const response = await client.post("/api/v1/auth/login").json({
       data: {
         email: seeds.users[1].email,
         password: "Test123!",
@@ -34,7 +34,7 @@ test.group("accounts", () => {
   test("it should successfully authenticate as normal user", async ({
     client,
   }) => {
-    const response = await client.post("/api/v1/login").json({
+    const response = await client.post("/api/v1/auth/login").json({
       data: {
         email: seeds.users[0].email,
         password: "Test123!",

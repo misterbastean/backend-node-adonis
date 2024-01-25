@@ -2,9 +2,15 @@ import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { DateTime } from "luxon"
 import { Account } from "App/Models"
 import { formatDateTimeToISO } from "App/Utils"
+import {
+  createDeletedResponse,
+  createErrorOrResponse,
+  createNotFoundError,
+} from "App/Utils/createResponse"
 
 export default class AccountsController {
-  public async index({ response, params, logger }: HttpContextContract) {
+  public async index(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const accounts = await Account.query()
         .select([
@@ -24,56 +30,32 @@ export default class AccountsController {
         .whereNull("deletedAt")
 
       if (accounts && accounts.length > 0) {
-        logger.debug(accounts, "Found accounts")
-
-        return { code: 200, data: accounts }
+        return createErrorOrResponse(ctx, 200, accounts)
       } else {
-        logger.info(`No accounts found for User with ID of ${params.userId}`)
-        response.status(404)
-        return {
-          code: 404,
-          data: null,
-        }
+        return createNotFoundError(ctx)
       }
     } catch (err) {
       logger.error({ err }, "Account index")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async store({ request, response, logger }: HttpContextContract) {
+  public async store(ctx: HttpContextContract) {
+    const { request, logger } = ctx
     try {
       const data = request.body().data
-      logger.debug(data, "Create account request data")
       const account = await Account.create(data)
-      logger.debug(account, "Created account")
-      response.status(201)
-      return {
-        code: 201,
-        data: {
-          ...account.$attributes,
-          createdAt: undefined,
-          updatedAt: undefined,
-        },
-      }
+      return createErrorOrResponse(ctx, 201, account)
     } catch (err) {
       logger.error({ err }, "Account store")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async show({ params, response, logger }: HttpContextContract) {
+  public async show(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const { userId, accountId } = params
-      logger.debug(params, "Request params")
 
       const account = await Account.query()
         .where("id", accountId)
@@ -97,41 +79,21 @@ export default class AccountsController {
         logger.info(
           `Account not found for User with ID of ${userId} and Account with id of ${accountId}`,
         )
-        response.status(404)
-        return {
-          code: 404,
-          data: {
-            id: null,
-          },
-        }
+        return createNotFoundError(ctx)
       }
-      logger.debug(account, "Found account:")
       delete account.$attributes["deletedAt"]
-      return {
-        code: 200,
-        data: account,
-      }
+      return createErrorOrResponse(ctx, 200, account)
     } catch (err) {
       logger.error({ err }, "Account show")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async update({
-    params,
-    request,
-    response,
-    logger,
-  }: HttpContextContract) {
+  public async update(ctx: HttpContextContract) {
+    const { params, request, logger } = ctx
     try {
       const { userId, accountId } = params
-      logger.debug(params, "Request params")
       const data = request.body().data
-      logger.debug(data, "Request data")
 
       const account = await Account.query()
         .where("id", accountId)
@@ -142,42 +104,24 @@ export default class AccountsController {
         logger.info(
           `Account not found for User with ID of ${userId} and Account with ID of ${accountId}`,
         )
-        response.status(404)
-        return {
-          code: 404,
-          data: {
-            id: null,
-          },
-        }
+        return createNotFoundError(ctx)
       }
 
       account.merge(data)
 
       await account.save()
-      logger.debug(account, "Updated account:")
 
-      return {
-        code: 200,
-        data: {
-          ...account.$attributes,
-          createdAt: undefined,
-          updatedAt: undefined,
-        },
-      }
+      return createErrorOrResponse(ctx, 200, account)
     } catch (err) {
       logger.error({ err }, "Account update")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async destroy({ params, response, logger }: HttpContextContract) {
+  public async destroy(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const { userId, accountId } = params
-      logger.debug(params, "Request params:")
       const account = await Account.query()
         .where("id", accountId)
         .where("userId", userId)
@@ -187,31 +131,16 @@ export default class AccountsController {
         logger.info(
           `No Account found for User with ID of ${userId} and Account with ID of ${accountId}`,
         )
-        response.status(404)
-        return {
-          code: 404,
-          data: {
-            id: null,
-          },
-        }
+        return createNotFoundError(ctx)
       }
 
       account.deletedAt = formatDateTimeToISO(DateTime.local())
       await account.save()
 
-      return {
-        code: 200,
-        data: {
-          id: account.id,
-        },
-      }
+      return createDeletedResponse(ctx, account)
     } catch (err) {
       logger.error({ err }, "Account destroy")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 }

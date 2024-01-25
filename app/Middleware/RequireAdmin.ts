@@ -1,16 +1,11 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
+import { createUnauthorizedError } from "App/Utils/createResponse"
 
 export default class RequireAdmin {
-  public async handle(
-    { user, response }: HttpContextContract,
-    next: () => Promise<void>,
-  ) {
+  public async handle(ctx: HttpContextContract, next: () => Promise<void>) {
+    const { user } = ctx
     if (!user || !user.roles.includes("admin")) {
-      response.unauthorized({
-        code: 401,
-        error: "Unauthorized",
-      })
-      return
+      return ctx.response.json(createUnauthorizedError(ctx))
     }
     await next()
   }

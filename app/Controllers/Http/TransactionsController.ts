@@ -54,7 +54,11 @@ export default class TransactionsController {
       const data = request.body().data
 
       logger.debug(data, "Transaction store request data")
-      const transaction = await Transaction.create(data)
+      // TODO: fix this crap
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const prunedData = (({ availableAmount: _, ...rest }) => rest)(data)
+
+      const transaction = await Transaction.create(prunedData)
       logger.debug(transaction, "Created transaction")
       response.status(201)
       return {
@@ -126,6 +130,9 @@ export default class TransactionsController {
       const data = request.body().data
 
       logger.debug(data, "Transaction update data")
+      // TODO: Fix this crap
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const prunedData = (({ availableAmount: _, ...rest }) => rest)(data)
 
       const transaction = await Transaction.query()
         .where("id", transactionId)
@@ -147,7 +154,7 @@ export default class TransactionsController {
         }
       }
 
-      transaction.merge(data)
+      transaction.merge(prunedData)
 
       await transaction.save()
       logger.debug(transaction, "Updated transaction")

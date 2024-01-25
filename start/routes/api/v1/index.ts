@@ -3,24 +3,21 @@ import Route from "@ioc:Adonis/Core/Route"
 Route.group(() => {
   // Accounts
   Route.group(() => {
-    Route.get("/", "AccountsController.index")
-      .as("listAccount")
-      .middleware("requiresAuth")
-    Route.post("/", "AccountsController.store")
-      .as("createAccount")
-      .middleware("requiresAuth")
-    Route.get("/:accountId", "AccountsController.show")
-      .as("showAccount")
-      .middleware("requiresAuth")
-    Route.put("/:accountId", "AccountsController.update")
-      .as("updateAccount")
-      .middleware("requiresAuth")
-    Route.delete("/:accountId", "AccountsController.destroy")
-      .as("destroyAccount")
-      .middleware("requiresAuth")
+    Route.get("/", "AccountsController.index").as("listAccount")
+
+    Route.post("/", "AccountsController.store").as("createAccount")
+
+    Route.get("/:accountId", "AccountsController.show").as("showAccount")
+
+    Route.put("/:accountId", "AccountsController.update").as("updateAccount")
+
+    Route.delete("/:accountId", "AccountsController.destroy").as(
+      "destroyAccount",
+    )
   })
     .as("account")
     .prefix("/account/:userId")
+    .middleware("requiresAuth")
 
   // Transactions
   Route.group(() => {
@@ -62,7 +59,7 @@ Route.group(() => {
   Route.group(() => {
     Route.post("/login", "UsersController.login").as("login")
     Route.post("/logout", "UsersController.logout").as("logout")
-  })
+  }).prefix("/auth")
 })
   .as("api.v1")
   .prefix("/api/v1")
