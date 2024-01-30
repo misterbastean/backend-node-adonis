@@ -4,6 +4,7 @@ coverage
 .DS_STORE
 .env
 tmp
+.nyc_output
 
 .idea
 .vscode/settings.json

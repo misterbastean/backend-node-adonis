@@ -7,6 +7,10 @@ import {
   createErrorOrResponse,
   createNotFoundError,
 } from "App/Utils/createResponse"
+import {
+  createAccountRequestSchema,
+  updateAccountRequestSchema,
+} from "App/Types/Validators/requestsValidators"
 
 export default class AccountsController {
   public async index(ctx: HttpContextContract) {
@@ -44,6 +48,16 @@ export default class AccountsController {
     const { request, logger } = ctx
     try {
       const data = request.body().data
+
+      // Validate data
+      const validator = await createAccountRequestSchema.validate(data)
+      if (validator.error)
+        return createErrorOrResponse(
+          ctx,
+          400,
+          `${validator.error}, ${JSON.stringify(data)}`,
+        )
+
       const account = await Account.create(data)
       return createErrorOrResponse(ctx, 201, account)
     } catch (err) {
@@ -94,6 +108,15 @@ export default class AccountsController {
     try {
       const { userId, accountId } = params
       const data = request.body().data
+
+      // Validate data
+      const validator = await updateAccountRequestSchema.validate(data)
+      if (validator.error)
+        return createErrorOrResponse(
+          ctx,
+          400,
+          `${validator.error}, ${JSON.stringify(data)}`,
+        )
 
       const account = await Account.query()
         .where("id", accountId)

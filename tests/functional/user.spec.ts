@@ -4,6 +4,10 @@ import seeds from "Tests/utils/seeds"
 
 let adminToken: string
 let userToken: string
+const invalidLoginBody = {
+  code: 401,
+  error: "Invalid username or password",
+}
 const unauthorizedBody = {
   code: 401,
   error: "Unauthorized",
@@ -20,10 +24,20 @@ test.group("users", () => {
       },
     })
     response.assertStatus(401)
-    response.assertBody({
-      code: 401,
-      error: "Invalid username or password",
+    response.assertBody(invalidLoginBody)
+  })
+
+  test("it should return the same failure response for a user that does not exist", async ({
+    client,
+  }) => {
+    const response = await client.post("/api/v1/auth/login").json({
+      data: {
+        email: "nonexistantuser@gmail.com",
+        password: "IncorrectPassword",
+      },
     })
+    response.assertStatus(401)
+    response.assertBody(invalidLoginBody)
   })
 
   test("it should successfully authenticate as admin user", async ({
@@ -68,6 +82,32 @@ test.group("users", () => {
     userToken = response.body().data.accessToken
   })
 
+  test("it should not create a user with an invalid email", async ({
+    client,
+  }) => {
+    const invalidCreateUserData = {
+      ...mocks.user,
+      email: "invalid",
+    }
+    const response = await client.post("/api/v1/user").json({
+      data: invalidCreateUserData,
+    })
+
+    response.assertStatus(400)
+  })
+
+  test("it should not create a user with invalid data", async ({ client }) => {
+    const invalidUser = {
+      ...mocks.user,
+      lastName: undefined,
+    }
+    const response = await client.post("/api/v1/user").json({
+      data: invalidUser,
+    })
+
+    response.assertStatus(400)
+  })
+
   test("it should create a user", async ({ client }) => {
     const response = await client.post("/api/v1/user").json({
       data: mocks.user,
@@ -81,6 +121,21 @@ test.group("users", () => {
         password: undefined,
       },
     })
+  })
+
+  test("it should not create a user with duplicate data", async ({
+    client,
+    assert,
+  }) => {
+    try {
+      await client.post("/api/v1/user").json({
+        data: mocks.user,
+      })
+    } catch (err) {
+      const error = JSON.parse(err)
+      assert.equal(error.code, 500)
+      assert.include(error.error, "UNIQUE constraint failed: user.email")
+    }
   })
 
   test("it should not list all users if not authenticated", async ({
@@ -145,7 +200,21 @@ test.group("users", () => {
     response.assertBody(unauthorizedBody)
   })
 
-  test("it should get a single user", async ({ client }) => {
+  test("it should return a 404 if single user not found", async ({
+    client,
+  }) => {
+    const response = await client
+      .get(`/api/v1/user/invalidUUID`)
+      .header("Authorization", adminToken)
+
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
+    })
+  })
+
+  test("it should show a single user", async ({ client }) => {
     const response = await client
       .get(`/api/v1/user/${seeds.users[0].id}`)
       .header("Authorization", userToken)
@@ -196,6 +265,44 @@ test.group("users", () => {
 
     response.assertStatus(401)
     response.assertBody(unauthorizedBody)
+  })
+
+  test("it should not update a single user with invalid data", async ({
+    client,
+  }) => {
+    const invalidData = {
+      email: "invalidEmail",
+      firstName: "Updated",
+      lastName: "Updated",
+      userName: "updated",
+    }
+    const response = await client
+      .put(`/api/v1/user/${seeds.users[0].id}`)
+      .header("Authorization", userToken)
+      .json({ data: invalidData })
+
+    response.assertStatus(400)
+  })
+
+  test("it should return a 404 if no user found to update", async ({
+    client,
+  }) => {
+    const updateUserData = {
+      email: "updated@updated.com",
+      firstName: "Updated",
+      lastName: "Updated",
+      userName: "updated",
+    }
+    const response = await client
+      .put(`/api/v1/user/invalidUUID`)
+      .header("Authorization", adminToken)
+      .json({ data: updateUserData })
+
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
+    })
   })
 
   test("it should update a single user", async ({ client }) => {
@@ -252,6 +359,20 @@ test.group("users", () => {
       data: {
         id: seeds.users[0].id,
       },
+    })
+  })
+
+  test("it should return a 404 if no user found to delete", async ({
+    client,
+  }) => {
+    const response = await client
+      .delete(`/api/v1/user/InvalidUUID`)
+      .header("Authorization", adminToken)
+
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
     })
   })
 })

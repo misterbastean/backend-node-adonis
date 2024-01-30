@@ -52,15 +52,27 @@ test.group("transactions", () => {
     response.assertBody(unauthorizedBody)
   })
 
+  test("it should not create a new transaction with invalid data", async ({
+    client,
+  }) => {
+    const invalidData = { ...mocks.transaction, amount: undefined }
+    const response = await client
+      .post(`/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}`)
+      .json({ data: invalidData })
+      .header("Authorization", userToken)
+    response.assertStatus(400)
+  })
+
   test("it should create a new transaction", async ({ client }) => {
     const response = await client
       .post(`/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}`)
       .json({ data: mocks.transaction })
       .header("Authorization", userToken)
     response.assertStatus(201)
+    const expectedBody = { ...mocks.transaction, availableAmount: undefined }
     response.assertBodyContains({
       code: 201,
-      data: { ...mocks.transaction },
+      data: expectedBody,
     })
   })
 
@@ -82,6 +94,19 @@ test.group("transactions", () => {
       .header("Authorization", userToken)
     response.assertStatus(401)
     response.assertBody(unauthorizedBody)
+  })
+
+  test("it should return a 404 if no transactions found for account", async ({
+    client,
+  }) => {
+    const response = await client
+      .get(`/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[1].id}`)
+      .header("Authorization", userToken)
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
+    })
   })
 
   test("it should list all transactions for a single account", async ({
@@ -122,6 +147,21 @@ test.group("transactions", () => {
       .header("Authorization", userToken)
     response.assertStatus(401)
     response.assertBody(unauthorizedBody)
+  })
+
+  test("it should return a 404 if a transaction not found", async ({
+    client,
+  }) => {
+    const response = await client
+      .get(
+        `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[1].id}/${seeds.transactions[0].id}`,
+      )
+      .header("Authorization", userToken)
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
+    })
   })
 
   test("it should get a single transaction", async ({ client }) => {
@@ -188,10 +228,59 @@ test.group("transactions", () => {
     response.assertBody(unauthorizedBody)
   })
 
+  test("it should not update a single transaction with invalid data", async ({
+    client,
+  }) => {
+    const invalidData = {
+      availableAmount: 50,
+      merchant: "Updated Merchant",
+      operation: "debit",
+      status: "complete",
+      transactionTypeId: seeds.transactionTypes[0].id,
+    }
+    const response = await client
+      .put(
+        `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[0].id}/${seeds.transactions[0].id}`,
+      )
+      .json({
+        data: invalidData,
+        userId: seeds.users[0].id,
+      })
+      .header("Authorization", userToken)
+    response.assertStatus(400)
+  })
+
+  test("it should return a 404 if no transaction found to update", async ({
+    client,
+  }) => {
+    const updateTransactionData = {
+      amount: 200,
+      availableAmount: 50,
+      merchant: "Updated Merchant",
+      operation: "debit",
+      status: "complete",
+      transactionTypeId: seeds.transactionTypes[0].id,
+    }
+    const response = await client
+      .put(
+        `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[1].id}/${seeds.transactions[0].id}`,
+      )
+      .json({
+        data: updateTransactionData,
+        userId: seeds.users[0].id,
+      })
+      .header("Authorization", userToken)
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
+    })
+  })
+
   test("it should update a single transaction", async ({ client }) => {
     const updateTransactionData = {
-      accountId: "100009",
       amount: 200,
+      availableAmount: 50,
       merchant: "Updated Merchant",
       operation: "debit",
       status: "complete",
@@ -207,11 +296,13 @@ test.group("transactions", () => {
       })
       .header("Authorization", userToken)
     response.assertStatus(200)
+    const expectedBody = {
+      ...updateTransactionData,
+      availableAmount: undefined,
+    }
     response.assertBodyContains({
       code: 200,
-      data: {
-        ...updateTransactionData,
-      },
+      data: expectedBody,
     })
   })
 
@@ -251,6 +342,21 @@ test.group("transactions", () => {
       data: {
         id: seeds.transactions[8].id,
       },
+    })
+  })
+
+  test("it should return a 404 if no transaction found to delete", async ({
+    client,
+  }) => {
+    const response = await client
+      .delete(
+        `/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[1].id}/${seeds.transactions[8].id}`,
+      )
+      .header("Authorization", userToken)
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
     })
   })
 })

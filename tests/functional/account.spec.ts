@@ -74,6 +74,18 @@ test.group("accounts", () => {
     response.assertBody(unauthorizedBody)
   })
 
+  test("it should not create an account with invalid data", async ({
+    client,
+  }) => {
+    const invalidData = { ...mocks.account, accountNumber: undefined }
+    const response = await client
+      .post(`/api/v1/account/${seeds.users[1].id}`)
+      .header("Authorization", adminToken)
+      .json({ data: invalidData })
+
+    response.assertStatus(400)
+  })
+
   test("it should create an account", async ({ client }) => {
     const response = await client
       .post(`/api/v1/account/${seeds.users[1].id}`)
@@ -84,13 +96,13 @@ test.group("accounts", () => {
     response.assertBodyContains({
       code: 201,
       data: {
-        accountNumber: "2345769324576982345697",
+        accountNumber: "123456",
         amount: 100,
         availableAmount: 50,
         accountTypeId: "ffefe82a-d8bd-4eea-92ea-0cd754caf2a3",
         currencyCode: "USD",
         name: "Mock Account",
-        routingNumber: 100492832467,
+        routingNumber: "123456789",
         userId: "37aee2d3-c48e-42f1-8e77-138334147e9b",
       },
     })
@@ -219,15 +231,37 @@ test.group("accounts", () => {
     response.assertBodyContains(unauthorizedBody)
   })
 
-  test("it should update an account", async ({ client }) => {
-    const updateAccountData = {
-      accountNumber: 11111,
+  test("it should not update an account with invalid data", async ({
+    client,
+  }) => {
+    const invalidUpdateData = {
       amount: 222,
       availableAmount: 333,
       accountTypeId: seeds.accountTypes[0].id,
       currencyCode: "WAT",
       name: "Updated",
-      routingNumber: 55555,
+      routingNumber: "987654321",
+    }
+
+    const response = await client
+      .put(`/api/v1/account/${seeds.users[0].id}/${seeds.accounts[0].id}`)
+      .json({
+        data: invalidUpdateData,
+      })
+      .header("Authorization", userToken)
+
+    response.assertStatus(400)
+  })
+
+  test("it should update an account", async ({ client }) => {
+    const updateAccountData = {
+      accountNumber: "11111",
+      amount: 222,
+      availableAmount: 333,
+      accountTypeId: seeds.accountTypes[0].id,
+      currencyCode: "WAT",
+      name: "Updated",
+      routingNumber: "987654321",
     }
 
     const response = await client
@@ -276,6 +310,72 @@ test.group("accounts", () => {
       data: {
         id: seeds.accounts[2].id,
       },
+    })
+  })
+
+  test("it should return a 404 if no accounts found to list", async ({
+    client,
+  }) => {
+    const response = await client
+      .get(`/api/v1/account/${seeds.users[1].id}`)
+      .header("Authorization", adminToken)
+    response.assertStatus(404)
+    response.assertBodyContains({
+      code: 404,
+      data: null,
+    })
+  })
+
+  test("it should return a 404 if no single account found to show", async ({
+    client,
+  }) => {
+    const response = await client
+      .get(`/api/v1/account/${seeds.users[1].id}/${seeds.users[0].id}`)
+      .header("Authorization", adminToken)
+    response.assertStatus(404)
+    response.assertBodyContains({
+      code: 404,
+      data: null,
+    })
+  })
+
+  test("it should return a 404 if no single account found to update", async ({
+    client,
+  }) => {
+    const updateAccountData = {
+      accountNumber: "11111",
+      amount: 222,
+      availableAmount: 333,
+      accountTypeId: seeds.accountTypes[0].id,
+      currencyCode: "WAT",
+      name: "Updated",
+      routingNumber: "987654321",
+    }
+
+    const response = await client
+      .put(`/api/v1/account/${seeds.users[1].id}/${seeds.accounts[0].id}`)
+      .json({
+        data: updateAccountData,
+      })
+      .header("Authorization", adminToken)
+
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
+    })
+  })
+
+  test("it should return a 404 if no single account found to delete", async ({
+    client,
+  }) => {
+    const response = await client
+      .delete(`/api/v1/account/${seeds.users[1].id}/${seeds.accounts[2].id}`)
+      .header("Authorization", adminToken)
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
     })
   })
 })

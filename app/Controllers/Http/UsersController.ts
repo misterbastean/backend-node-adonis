@@ -6,9 +6,19 @@ import {
   createBearerToken,
   formatDateTimeToISO,
 } from "App/Utils"
+import {
+  createDeletedResponse,
+  createErrorOrResponse,
+  createNotFoundError,
+} from "App/Utils/createResponse"
+import {
+  createUserRequestSchema,
+  updateUserRequestSchema,
+} from "App/Types/Validators/requestsValidators"
 
 export default class UsersController {
-  public async index({ response, logger }: HttpContextContract) {
+  public async index(ctx: HttpContextContract) {
+    const { logger } = ctx
     try {
       const foundUsers = await User.query()
         .from("user")
@@ -24,45 +34,43 @@ export default class UsersController {
         .whereNull("deletedAt")
       logger.debug(foundUsers, "Found users")
 
-      return { code: 200, data: foundUsers }
+      if (!foundUsers || foundUsers.length === 0) {
+        return createNotFoundError(ctx)
+      }
+
+      return createErrorOrResponse(ctx, 200, foundUsers)
     } catch (err) {
       logger.error({ err }, "User index")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async store({ request, response, logger }: HttpContextContract) {
+  public async store(ctx: HttpContextContract) {
+    const { request, logger } = ctx
     try {
       const data = request.body().data
       logger.debug(data, "Received data")
 
-      // TODO: Validate incoming data
+      // Validate data
+      const validator = await createUserRequestSchema.validate(data)
+      if (validator.error)
+        return createErrorOrResponse(
+          ctx,
+          400,
+          `${validator.error}, ${JSON.stringify(data)}`,
+        )
 
       const user = await User.create({ ...data, role: "user" })
       logger.debug(user, "Created user")
-      response.status(201)
-      return {
-        code: 201,
-        data: {
-          ...user.$attributes,
-          password: undefined,
-        },
-      }
+      return createErrorOrResponse(ctx, 201, user)
     } catch (err) {
       logger.error({ err }, "User store")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async show({ params, response, logger }: HttpContextContract) {
+  public async show(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const user = await User.query()
         .from("user")
@@ -82,35 +90,19 @@ export default class UsersController {
       // Cannot check if deletedAt is null during DB query due to luxom formatting issues
       // with how the SQLite DB value is stored.
       if (user && !user.deletedAt) {
-        delete user.$attributes.deletedAt
-        return {
-          code: 200,
-          data: user,
-        }
+        return createErrorOrResponse(ctx, 200, user)
       } else {
         logger.info(`No user found with ID ${params.userId}`)
-        response.status(404)
-        return {
-          code: 404,
-          data: null,
-        }
+        return createNotFoundError(ctx)
       }
     } catch (err) {
       logger.error({ err }, "User show")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async update({
-    params,
-    request,
-    response,
-    logger,
-  }: HttpContextContract) {
+  public async update(ctx: HttpContextContract) {
+    const { params, request, logger } = ctx
     try {
       const user = await User.find(params.userId)
       logger.debug(user, "Found user")
@@ -118,65 +110,45 @@ export default class UsersController {
         const data = request.body().data
         logger.debug(data, "Request data:")
 
-        // TODO: Validate data
+        // Validate data
+        const validator = await updateUserRequestSchema.validate(data)
+        if (validator.error)
+          return createErrorOrResponse(
+            ctx,
+            400,
+            `${validator.error}, ${JSON.stringify(data)}`,
+          )
 
         user.merge(data)
         await user.save()
         logger.debug(user, "Updated user:")
-        return {
-          code: 200,
-          data: {
-            ...user.$attributes,
-            password: undefined,
-            deletedAt: undefined,
-          },
-        }
+        return createErrorOrResponse(ctx, 200, user)
       } else {
         logger.info(`User not found with ID of ${params.userId}`)
-        response.status(404)
-        return {
-          code: 404,
-          data: null,
-        }
+        return createNotFoundError(ctx)
       }
     } catch (err) {
       logger.error({ err }, "User update")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async destroy({ params, response, logger }: HttpContextContract) {
+  public async destroy(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const user = await User.find(params.userId)
       logger.debug(user, "Found user:")
       if (user) {
         user.deletedAt = formatDateTimeToISO(DateTime.local())
         await user.save()
-        return {
-          code: 200,
-          data: {
-            id: user.id,
-          },
-        }
+        return createDeletedResponse(ctx, user)
       } else {
         logger.info(`User not found with ID of ${params.userId}`)
-        response.status(404)
-        return {
-          code: 404,
-          data: null,
-        }
+        return createNotFoundError(ctx)
       }
     } catch (err) {
       logger.error({ err }, "User destroy")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 

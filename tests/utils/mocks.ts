@@ -9,24 +9,25 @@ const mockUserData = {
 }
 
 const mockAccountData = {
-  accountNumber: "2345769324576982345697",
+  accountNumber: "123456",
+  accountTypeId: seeds.accountTypes[0].id,
   amount: 100,
   availableAmount: 50,
-  accountTypeId: seeds.accountTypes[0].id,
   currencyCode: "USD",
   name: "Mock Account",
-  routingNumber: 100492832467,
+  routingNumber: "123456789",
   userId: seeds.users[0].id,
 }
 
 const mockTransactionData = {
-  userId: seeds.users[0].id,
   accountId: seeds.accounts[0].id,
-  transactionTypeId: seeds.transactionTypes[0].id,
   amount: 10,
-  status: "pending",
-  operation: "debit",
+  availableAmount: 500,
   merchant: "Mock Merchant",
+  operation: "debit",
+  status: "pending",
+  transactionTypeId: seeds.transactionTypes[0].id,
+  userId: seeds.users[0].id,
 }
 
 const mocks = {

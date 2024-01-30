@@ -2,9 +2,19 @@ import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { DateTime } from "luxon"
 import Transaction from "App/Models/Transaction"
 import { formatDateTimeToISO } from "App/Utils"
+import {
+  createTranactionRequestSchema,
+  updateTransactionRequestSchema,
+} from "App/Types/Validators/requestsValidators"
+import {
+  createDeletedResponse,
+  createErrorOrResponse,
+  createNotFoundError,
+} from "App/Utils/createResponse"
 
 export default class TransactionsController {
-  public async index({ response, params, logger }: HttpContextContract) {
+  public async index(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const { userId, accountId } = params
       logger.debug(params, "params:")
@@ -28,32 +38,35 @@ export default class TransactionsController {
       logger.debug(transactions, "Found transactions:")
 
       if (transactions && transactions.length > 0) {
-        return { code: 200, data: transactions }
+        return createErrorOrResponse(ctx, 200, transactions)
       } else {
         logger.info(
           `No transactions found for User ID ${userId}, Account ID ${accountId}`,
         )
-        response.status(404)
-        return {
-          code: 404,
-          data: null,
-        }
+        return createNotFoundError(ctx)
       }
     } catch (err) {
       logger.error({ err }, "Transaction index")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async store({ request, response, logger }: HttpContextContract) {
+  public async store(ctx: HttpContextContract) {
+    const { response, logger } = ctx
     try {
-      const data = request.body().data
+      const data = ctx.request.body().data
+
+      // Validate data
+      const validator = await createTranactionRequestSchema.validate(data)
+      if (validator.error)
+        return createErrorOrResponse(
+          ctx,
+          400,
+          `${validator.error}, ${JSON.stringify(data)}`,
+        )
 
       logger.debug(data, "Transaction store request data")
+
       // TODO: fix this crap
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const prunedData = (({ availableAmount: _, ...rest }) => rest)(data)
@@ -61,25 +74,15 @@ export default class TransactionsController {
       const transaction = await Transaction.create(prunedData)
       logger.debug(transaction, "Created transaction")
       response.status(201)
-      return {
-        code: 201,
-        data: {
-          ...transaction.$attributes,
-          createdAt: undefined,
-          updatedAt: undefined,
-        },
-      }
+      return createErrorOrResponse(ctx, 201, transaction)
     } catch (err) {
       logger.error({ err }, "Transaction store")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async show({ params, response, logger }: HttpContextContract) {
+  public async show(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const { userId, accountId, transactionId } = params
       logger.debug(params, "Transaction show params")
@@ -95,41 +98,36 @@ export default class TransactionsController {
         logger.info(
           `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
         )
-        response.status(404)
-        return {
-          code: 404,
-          error: "Transaction not found.",
-        }
+        return createNotFoundError(ctx)
       }
 
       delete transaction.$attributes.deletedAt
 
-      return {
-        code: 200,
-        data: transaction,
-      }
+      return createErrorOrResponse(ctx, 200, transaction)
     } catch (err) {
       logger.error({ err }, "Transaction show")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async update({
-    params,
-    request,
-    response,
-    logger,
-  }: HttpContextContract) {
+  public async update(ctx: HttpContextContract) {
+    const { params, request, logger } = ctx
     try {
       const { userId, accountId, transactionId } = params
       logger.debug(params, "Transaction update params")
       const data = request.body().data
 
+      // Validate data
+      const validator = await updateTransactionRequestSchema.validate(data)
+      if (validator.error)
+        return createErrorOrResponse(
+          ctx,
+          400,
+          `${validator.error}, ${JSON.stringify(data)}`,
+        )
+
       logger.debug(data, "Transaction update data")
+
       // TODO: Fix this crap
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const prunedData = (({ availableAmount: _, ...rest }) => rest)(data)
@@ -145,13 +143,7 @@ export default class TransactionsController {
         logger.info(
           `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
         )
-        response.status(404)
-        return {
-          code: 404,
-          data: {
-            id: null,
-          },
-        }
+        return createNotFoundError(ctx)
       }
 
       transaction.merge(prunedData)
@@ -159,26 +151,15 @@ export default class TransactionsController {
       await transaction.save()
       logger.debug(transaction, "Updated transaction")
 
-      return {
-        code: 200,
-        data: {
-          ...transaction.$attributes,
-          createdAt: undefined,
-          updatedAt: undefined,
-          deletedAt: undefined,
-        },
-      }
+      return createErrorOrResponse(ctx, 200, transaction)
     } catch (err) {
       logger.error({ err }, "Transaction update")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 
-  public async destroy({ params, response, logger }: HttpContextContract) {
+  public async destroy(ctx: HttpContextContract) {
+    const { params, logger } = ctx
     try {
       const { userId, accountId, transactionId } = params
       logger.debug(params, "Transaction destroy params")
@@ -192,31 +173,16 @@ export default class TransactionsController {
         logger.info(
           `No transaction found for User ID ${userId}, Account ID ${accountId}, Transaction ID ${transactionId}`,
         )
-        response.status(404)
-        return {
-          code: 404,
-          data: {
-            id: null,
-          },
-        }
+        return createNotFoundError(ctx)
       }
 
       transaction.deletedAt = formatDateTimeToISO(DateTime.local())
       await transaction.save()
 
-      return {
-        code: 200,
-        data: {
-          id: transaction.id,
-        },
-      }
+      return createDeletedResponse(ctx, transaction)
     } catch (err) {
       logger.error({ err }, "Transaction destroy")
-      response.status(500)
-      return {
-        code: 500,
-        error: err.message,
-      }
+      return createErrorOrResponse(ctx, 500, err.message)
     }
   }
 }
