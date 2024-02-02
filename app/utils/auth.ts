@@ -20,7 +20,7 @@ async function createBearerToken(user: User) {
   const token = await jwt.sign(payload, JWT_SECRET, {
     expiresIn: "1h",
   })
-  return `Bearer ${token}`
+  return token
 }
 
 export { createBearerToken }

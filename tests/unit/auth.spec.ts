@@ -19,8 +19,7 @@ test.group("Auth", () => {
 
   test("createBearerToken creates proper JWT", async ({ assert }) => {
     const bearerToken = await createBearerToken(mockUser)
-    const token = bearerToken.split(" ")[1]
-    const decodedToken = await jwt.verify(token, JWT_SECRET)
+    const decodedToken = await jwt.verify(bearerToken, JWT_SECRET)
 
     const expected = {
       iss: "Endava",
