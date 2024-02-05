@@ -1,6 +1,5 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { DateTime } from "luxon"
-import Transaction from "App/Models/Transaction"
 import { formatDateTimeToISO } from "App/Utils"
 import {
   createTranactionRequestSchema,
@@ -11,6 +10,7 @@ import {
   createErrorOrResponse,
   createNotFoundError,
 } from "App/Utils/createResponse"
+import { Account, Transaction, User } from "App/Models"
 
 export default class TransactionsController {
   public async index(ctx: HttpContextContract) {
@@ -34,16 +34,12 @@ export default class TransactionsController {
         .where("userId", userId)
         .where("accountId", accountId)
         .whereNull("deletedAt")
-
-      logger.debug(transactions, "Found transactions:")
-
-      if (transactions && transactions.length > 0) {
-        return createErrorOrResponse(ctx, 200, transactions)
-      } else {
-        logger.info(
-          `No transactions found for User ID ${userId}, Account ID ${accountId}`,
-        )
+      const account = await Account.find(accountId)
+      const user = await User.find(userId)
+      if (!account || !user) {
         return createNotFoundError(ctx)
+      } else {
+        return createErrorOrResponse(ctx, 200, transactions)
       }
     } catch (err) {
       logger.error({ err }, "Transaction index")

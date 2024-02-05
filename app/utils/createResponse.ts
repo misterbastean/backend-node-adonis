@@ -196,6 +196,12 @@ export function createErrorOrResponse(
       throw new Error("Invalid status code provided for error response")
     }
   } else if (Array.isArray(dataOrMsg)) {
+    if (dataOrMsg.length === 0) {
+      return {
+        code: 200,
+        data: [],
+      }
+    }
     if ("transactionTypeId" in dataOrMsg[0].$attributes) {
       return createDataResponse<Transaction[]>(code, dataOrMsg as Transaction[])
     } else if ("accountTypeId" in dataOrMsg[0].$attributes) {

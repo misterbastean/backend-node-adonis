@@ -313,11 +313,22 @@ test.group("accounts", () => {
     })
   })
 
-  test("it should return a 404 if no accounts found to list", async ({
+  test("it should return an empty array if no accounts found to list", async ({
     client,
   }) => {
     const response = await client
       .get(`/api/v1/account/${seeds.users[1].id}`)
+      .header("Authorization", adminToken)
+    response.assertStatus(200)
+    response.assertBodyContains({
+      code: 200,
+      data: [],
+    })
+  })
+
+  test("it should return a 404 if no user found", async ({ client }) => {
+    const response = await client
+      .get(`/api/v1/account/invalidUserId`)
       .header("Authorization", adminToken)
     response.assertStatus(404)
     response.assertBodyContains({

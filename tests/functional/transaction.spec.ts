@@ -3,6 +3,7 @@ import mocks from "Tests/utils/mocks"
 import seeds from "Tests/utils/seeds"
 
 let userToken: string
+let adminToken: string
 const unauthorizedBody = {
   code: 401,
   error: "Unauthorized",
@@ -28,6 +29,27 @@ test.group("transactions", () => {
     })
 
     userToken = response.body().data.accessToken
+  })
+
+  test("it should successfully authenticate as admin user", async ({
+    client,
+  }) => {
+    const response = await client.post("/api/v1/auth/login").json({
+      data: {
+        email: seeds.users[1].email,
+        password: "Test123!",
+      },
+    })
+    response.assertStatus(200)
+    response.assertBodyContains({
+      code: 200,
+      data: {
+        tokenType: "Bearer",
+        expiresIn: 3600,
+      },
+    })
+
+    adminToken = response.body().data.accessToken
   })
 
   test("it should not create a new transaction if unauthenticated", async ({
@@ -96,12 +118,34 @@ test.group("transactions", () => {
     response.assertBody(unauthorizedBody)
   })
 
-  test("it should return a 404 if no transactions found for account", async ({
+  test("it should return an empty array if no transactions found for account", async ({
     client,
   }) => {
     const response = await client
       .get(`/api/v1/transaction/${seeds.users[0].id}/${seeds.accounts[1].id}`)
       .header("Authorization", userToken)
+    response.assertStatus(200)
+    response.assertBody({
+      code: 200,
+      data: [],
+    })
+  })
+
+  test("it should return a 404 if user not found", async ({ client }) => {
+    const response = await client
+      .get(`/api/v1/transaction/invalidUserId/${seeds.accounts[1].id}`)
+      .header("Authorization", adminToken)
+    response.assertStatus(404)
+    response.assertBody({
+      code: 404,
+      data: null,
+    })
+  })
+
+  test("it should return a 404 if account not found", async ({ client }) => {
+    const response = await client
+      .get(`/api/v1/transaction/${seeds.users[0].id}/invalidAccountId`)
+      .header("Authorization", adminToken)
     response.assertStatus(404)
     response.assertBody({
       code: 404,

@@ -1,6 +1,6 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
 import { DateTime } from "luxon"
-import { Account } from "App/Models"
+import { Account, User } from "App/Models"
 import { formatDateTimeToISO } from "App/Utils"
 import {
   createDeletedResponse,
@@ -32,11 +32,11 @@ export default class AccountsController {
         ])
         .where("userId", params.userId)
         .whereNull("deletedAt")
-
-      if (accounts && accounts.length > 0) {
-        return createErrorOrResponse(ctx, 200, accounts)
-      } else {
+      const user = await User.find(params.userId)
+      if (!user) {
         return createNotFoundError(ctx)
+      } else {
+        return createErrorOrResponse(ctx, 200, accounts)
       }
     } catch (err) {
       logger.error({ err }, "Account index")
