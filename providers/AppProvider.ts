@@ -58,7 +58,8 @@ export default class AppProvider {
           } else if (err.message === "jwt malformed") {
             ctx.logger.debug("JWT malformed")
           } else {
-            ctx.logger.error("Error parsing JWT:", [err.message])
+            ctx.logger.debug("Error parsing JWT:", [err.message])
+            ctx.logger.debug("JWT value:", ctx.request.header("authorization"))
           }
         } finally {
           await next()

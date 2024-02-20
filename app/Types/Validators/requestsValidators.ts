@@ -3,7 +3,7 @@ import Joi from "joi"
 export const createAccountRequestSchema = Joi.object({
   accountNumber: Joi.string().required().max(50),
   accountTypeId: Joi.string().required().guid(),
-  amount: Joi.number().required().min(0),
+  amount: Joi.number().required(),
   availableAmount: Joi.number().required(),
   currencyCode: Joi.string().required().length(3),
   name: Joi.string().required().max(50),
@@ -14,7 +14,7 @@ export const createAccountRequestSchema = Joi.object({
 export const updateAccountRequestSchema = Joi.object({
   accountNumber: Joi.string().required().max(50),
   accountTypeId: Joi.string().required().guid(),
-  amount: Joi.number().required().min(0),
+  amount: Joi.number().required(),
   availableAmount: Joi.number().required(),
   currencyCode: Joi.string().required().length(3),
   name: Joi.string().required().max(50),
