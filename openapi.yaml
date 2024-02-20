@@ -1,0 +1,1595 @@
+openapi: 3.1.0
+info:
+  title: Bench Project API
+  description: |-
+    This is a bench project based on the OpenAPI 3.0 specification.
+
+    Some useful links:
+    - [The Bench Project repository](https://bitbucket.endava.com/projects/BDAP)
+    - [The source API definition for the Bench Dashboard](https://bitbucket.endava.com/projects/BDAP/repos/contract/contract.yaml)
+  version: 1.0.0
+servers:
+  - url: http://localhost:{port}/{basePath}
+    description: local server for development and testing
+    variables:
+      port:
+        enum:
+          - "3001"
+          - "443"
+        default: "3001"
+      basePath:
+        default: api/v1
+tags:
+  - name: account
+    description: Operations related to accounts
+  - name: transaction
+    description: Operations related to transactions
+  - name: user
+    description: Operations related to user
+paths:
+  /user:
+    get:
+      description: List all users
+      operationId: ListUsers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListUserResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: List all users
+      tags:
+        - user
+    post:
+      description: Create user
+      operationId: CreateUser
+      requestBody:
+        description: User data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateUserResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Create user
+      tags:
+        - user
+  /user/{userId}:
+    delete:
+      description: Delete user
+      operationId: DeleteUser
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteUserResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Delete user
+      tags:
+        - user
+    get:
+      description: Get one user
+      operationId: GetUser
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetUserResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Get one user
+      tags:
+        - user
+    put:
+      description: Update user
+      operationId: UpdateUser
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: User data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateUserResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Update user
+      tags:
+        - user
+  /account/{userId}:
+    get:
+      description: List all user accounts
+      operationId: ListAccounts
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: List all accounts
+      tags:
+        - account
+    post:
+      description: Create account
+      operationId: CreateAccount
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Account data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAccountResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Create account
+      tags:
+        - account
+  /account/{userId}/{accountId}:
+    delete:
+      description: Delete account
+      operationId: DeleteAccount
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Delete account
+      tags:
+        - account
+    get:
+      description: Get one account
+      operationId: GetAccount
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Get one account
+      tags:
+        - account
+    put:
+      description: Update account
+      operationId: UpdateAccount
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Account data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateAccountResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ErrorResponse"
+      summary: Update account
+      tags:
+        - account
+  /transaction/{userId}/{accountId}:
+    get:
+      description: List all transactions
+      operationId: ListTransaction
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListTransactionResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User or Account Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: List all transactions
+      tags:
+        - transaction
+    post:
+      description: Create transaction
+      operationId: CreateTransaction
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Transaction data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransactionRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateTransactionResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: User or Account Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Create transaction
+      tags:
+        - transaction
+  /transaction/{userId}/{accountId}/{transactionId}:
+    delete:
+      description: Delete a transaction
+      operationId: DeleteTransaction
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Transaction ID
+          in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteTransactionResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Delete transaction
+      tags:
+        - transaction
+    get:
+      description: Get one transaction
+      operationId: GetTransaction
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Transaction ID
+          in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTransactionResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Get one transaction
+      tags:
+        - transaction
+    put:
+      description: Update transaction
+      operationId: UpdateTransaction
+      parameters:
+        - description: User ID
+          in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Account ID
+          in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - description: Transaction ID
+          in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Transaction data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTransactionRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateTransactionResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Update transaction
+      tags:
+        - transaction
+  /auth/login:
+    post:
+      description: Authenticate user
+      operationId: AuthLogin
+      requestBody:
+        description: User login data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthLoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthLoginResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Login user
+      security:
+        - {}
+      tags:
+        - auth
+  /auth/logout:
+    get:
+      description: Logout of user session
+      operationId: AuthLogout
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthLogoutResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Logout user
+      tags:
+        - auth
+components:
+  schemas:
+    AuthLoginRequestModel:
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      type: object
+    AuthLogoutRequestModel:
+      properties:
+        redirectUrl:
+          type: string
+      type: object
+    AuthLoginResponseModel:
+      properties:
+        accessToken:
+          type: string
+          pattern: '[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]+$'
+        tokenType:
+          type: string
+          enum:
+            - Bearer
+        expiresIn:
+          type: integer
+          examples: [3600]
+      type: object
+    AuthLogoutResponseModel:
+      properties:
+        success:
+          type: boolean
+      type: object
+    CreateAccountRequestModel:
+      properties:
+        accountNumber:
+          type: string
+          examples: ["1234567890"]
+        accountTypeId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [100]
+        availableAmount:
+          type: number
+          examples: [5000]
+        currencyCode:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          examples: ["USD"]
+        name:
+          type: string
+          examples: ["Main Checking"]
+        routingNumber:
+          type: string
+          examples: ["1234567890"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    CreateAccountResponseModel:
+      properties:
+        accountNumber:
+          type: string
+          examples: ["1234567890"]
+        accountTypeId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [100]
+        availableAmount:
+          type: number
+          examples: [5000]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        currencyCode:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          examples: ["USD"]
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          examples: ["Main Checking"]
+        routingNumber:
+          type: string
+          examples: ["1234567890"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    CreateTransactionRequestModel:
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [100]
+        availableAmount:
+          type: number
+          examples: [5000]
+        merchant:
+          type: string
+          examples: ["Starbucks"]
+        operation:
+          type: string
+          enum: ["credit", "debit"]
+        status:
+          type: string
+          enum: ["pending", "complete"]
+        transactionTypeId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+      required:
+        - accountId
+        - amount
+        - availableAmount
+        - merchant
+        - operation
+        - status
+        - transactionTypeId
+        - userId
+      type: object
+    CreateTransactionResponseModel:
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [100]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        id:
+          type: string
+          format: uuid
+        merchant:
+          type: string
+          examples: ["Starbucks"]
+        operation:
+          type: string
+          enum: ["credit", "debit"]
+        status:
+          type: string
+          enum: ["pending", "complete"]
+        transactionTypeId:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    CreateUserRequestModel:
+      properties:
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+          examples: ["Jane"]
+        lastName:
+          type: string
+          examples: ["Doe"]
+        password:
+          type: string
+        userName:
+          type: string
+          examples: ["jane.doe"]
+      required:
+        - email
+        - firstName
+        - lastName
+        - password
+        - userName
+      type: object
+    CreateUserResponseModel:
+      properties:
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+          examples: ["Jane"]
+        id:
+          type: string
+          format: uuid
+        lastName:
+          type: string
+          examples: ["Doe"]
+        role:
+          type: string
+          enum: ["user", "admin"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userName:
+          type: string
+          examples: ["jane.doe"]
+      type: object
+    DeleteAccountResponseModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+      type: object
+    DeleteTransactionResponseModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+      type: object
+    DeleteUserResponseModel:
+      properties:
+        id:
+          type: string
+          format: uuid
+      type: object
+    ErrorResponse:
+      properties:
+        code:
+          type: integer
+          examples: [500]
+        error:
+          type: string
+      type: object
+    GetAccountResponseModel:
+      properties:
+        accountNumber:
+          type: string
+          examples: ["1234567890"]
+        accountTypeId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [5000]
+        availableAmount:
+          type: number
+          examples: [4000]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        currencyCode:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          examples: ["USD"]
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          examples: ["Main Checking"]
+        routingNumber:
+          type: string
+          examples: ["1234567890"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    GetTransactionResponseModel:
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [5000]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        id:
+          type: string
+          format: uuid
+        merchant:
+          type: string
+          examples: ["Starbucks"]
+        operation:
+          type: string
+          enum: ["pending", "complete"]
+        status:
+          type: string
+        transactionTypeId:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    GetUserResponseModel:
+      properties:
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+          examples: ["Jane"]
+        id:
+          type: string
+          format: uuid
+        lastName:
+          type: string
+          examples: ["Doe"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userName:
+          type: string
+          examples: ["jane.doe"]
+      type: object
+    AuthLoginRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/AuthLoginRequestModel"
+      type: object
+    AuthLogoutRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/AuthLogoutRequestModel"
+      type: object
+    CreateAccountRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/CreateAccountRequestModel"
+      type: object
+    CreateTransactionRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/CreateTransactionRequestModel"
+      type: object
+    CreateUserRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/CreateUserRequestModel"
+      type: object
+    UpdateAccountRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/UpdateAccountRequestModel"
+      type: object
+    UpdateTransactionRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/UpdateTransactionRequestModel"
+      type: object
+    UpdateUserRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/UpdateUserRequestModel"
+      type: object
+    AuthLoginResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/AuthLoginResponseModel"
+      type: object
+    AuthLogoutResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/AuthLogoutResponseModel"
+      type: object
+    CreateAccountResponse:
+      properties:
+        code:
+          type: integer
+          examples: [201]
+        data:
+          $ref: "#/components/schemas/CreateAccountResponseModel"
+      type: object
+    CreateTransactionResponse:
+      properties:
+        code:
+          type: integer
+          examples: [201]
+        data:
+          $ref: "#/components/schemas/CreateTransactionResponseModel"
+      type: object
+    CreateUserResponse:
+      properties:
+        code:
+          type: integer
+          examples: [201]
+        data:
+          $ref: "#/components/schemas/CreateUserResponseModel"
+      type: object
+    DeleteAccountResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/DeleteAccountResponseModel"
+      type: object
+    DeleteTransactionResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/DeleteTransactionResponseModel"
+      type: object
+    DeleteUserResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/DeleteUserResponseModel"
+      type: object
+    GetAccountResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/GetAccountResponseModel"
+      type: object
+    GetTransactionResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/GetTransactionResponseModel"
+      type: object
+    GetUserResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/GetUserResponseModel"
+      type: object
+    ListAccountResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          items:
+            $ref: "#/components/schemas/ListAccountResponseModel"
+          type: array
+      type: object
+    ListAccountResponseModel:
+      properties:
+        accountNumber:
+          type: string
+          examples: ["1234567890"]
+        accountTypeId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [100]
+        availableAmount:
+          type: number
+          examples: [5000]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        currencyCode:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          examples: ["USD"]
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          examples: ["Main Checking"]
+        routingNumber:
+          type: string
+          examples: ["1234567890"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    ListTransactionResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          items:
+            $ref: "#/components/schemas/ListTransactionResponseModel"
+          type: array
+      type: object
+    ListTransactionResponseModel:
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [1000]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        id:
+          type: string
+          format: uuid
+        merchant:
+          type: string
+          examples: ["Starbucks"]
+        operation:
+          type: string
+          enum: ["debit", "credit"]
+        status:
+          type: string
+          enum: ["pending", "complete"]
+        transactionTypeId:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    ListUserResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          items:
+            $ref: "#/components/schemas/ListUserResponseModel"
+          type: array
+      type: object
+    ListUserResponseModel:
+      properties:
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+          examples: ["Jane"]
+        id:
+          type: string
+          format: uuid
+        lastName:
+          type: string
+          examples: ["Doe"]
+        role:
+          type: string
+          enum: ["user", "admin"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userName:
+          type: string
+          examples: ["jane.doe"]
+      type: object
+    UpdateAccountResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/UpdateAccountResponseModel"
+      type: object
+    UpdateTransactionResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/UpdateTransactionResponseModel"
+      type: object
+    UpdateUserResponse:
+      properties:
+        code:
+          type: integer
+          examples: [200]
+        data:
+          $ref: "#/components/schemas/UpdateUserResponseModel"
+      type: object
+    UpdateAccountRequestModel:
+      properties:
+        accountNumber:
+          type: string
+          examples: ["1234567890"]
+        accountTypeId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [2000]
+        availableAmount:
+          type: number
+          examples: [4000]
+        currencyCode:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          examples: ["USD"]
+        name:
+          type: string
+          examples: ["Main Checking"]
+        routingNumber:
+          type: string
+          examples: ["1234567890"]
+      type: object
+    UpdateAccountResponseModel:
+      properties:
+        accountNumber:
+          type: string
+          examples: ["1234567890"]
+        accountTypeId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [2000]
+        availableAmount:
+          type: number
+          examples: [4000]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        currencyCode:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          examples: ["USD"]
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          examples: ["Main Checking"]
+        routingNumber:
+          type: string
+          examples: ["1234567890"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    UpdateTransactionRequestModel:
+      properties:
+        amount:
+          type: number
+          examples: [100]
+        availableAmount:
+          type: number
+          examples: [200]
+        merchant:
+          type: string
+          examples: ["Starbucks"]
+        operation:
+          type: string
+          enum: ["credit", "debit"]
+        status:
+          type: string
+          enum: ["pending", "complete"]
+        transactionTypeId:
+          type: string
+          format: uuid
+      type: object
+    UpdateTransactionResponseModel:
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          examples: [200]
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        id:
+          type: string
+          format: uuid
+        merchant:
+          type: string
+          examples: ["Starbucks"]
+        operation:
+          type: string
+          enum: ["credit", "debit"]
+        status:
+          type: string
+          enum: ["pending", "complete"]
+        transactionTypeId:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userId:
+          type: string
+          format: uuid
+      type: object
+    UpdateUserRequestModel:
+      properties:
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+          examples: ["Jane"]
+        lastName:
+          type: string
+          examples: ["Doe"]
+        userName:
+          type: string
+          examples: ["jane.doe"]
+      required:
+        - email
+        - firstName
+        - lastName
+        - userName
+      type: object
+    UpdateUserResponseModel:
+      properties:
+        createdAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+          examples: ["Jane"]
+        id:
+          type: string
+          format: uuid
+        lastName:
+          type: string
+          examples: ["Doe"]
+        role:
+          type: string
+          enum: ["user", "admin"]
+        updatedAt:
+          type: string
+          examples: ["2024-01-24T20:46:25.000-05:00"]
+        userName:
+          type: string
+          examples: ["jane.doe"]
+      type: object
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerToken: []
